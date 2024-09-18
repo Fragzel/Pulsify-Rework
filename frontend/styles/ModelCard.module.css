@@ -1,0 +1,70 @@
+.listItemContainer {
+  display: flex;
+  align-items: center;
+  width: 95%;
+  height: 100%;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 120%;
+  cursor: pointer;
+  margin: 5px;
+  margin-left: 2%;
+  transition-duration: 500ms;
+  background: #272541;
+  border: 1px solid #000000;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  user-select: none;
+}
+
+.listItemContainer:hover {
+  background-color: #B300F2;
+  height: 110%;
+}
+
+.listItemTitle {
+  width: 25%;
+  border-right: #ffffff 1px solid;
+  height: 100%;
+}
+
+.listItemPrompt {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-left: 3%;
+  font-size: 70%;
+  word-wrap: break-word;
+  text-align: left;
+}
+
+.genre {
+  width: 40%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 80%;
+  padding-right: 2%;
+  padding-left: 2%;
+  margin-left: -20%;
+  border-right: #7100f2 1px solid;
+  border-left: #7100f2 1px solid;
+  box-sizing: content-box;
+  word-wrap: break-word;
+}
+
+.author {
+  margin-right: 20%;
+  width: 30%;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+
+.trashIcon {
+  padding-right: 1%;
+}

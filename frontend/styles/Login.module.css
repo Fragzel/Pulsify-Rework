@@ -1,0 +1,84 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    font-family: 'Arial';
+    background-color: #0B0A1A;
+    color: white;
+}
+
+.title {
+    background: linear-gradient(90deg, #48DEFF 0%, #EE00F2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 400%;
+    margin: 25px;
+    font-weight: 400;
+    margin-bottom: 50px;
+}
+
+.inputEmail {
+    width: 30%;
+    height: 8%;
+    background: #272541;
+    border: 1px solid #B300F2;
+    border-radius: 8px;
+    margin: 10px;
+    font-size: large;
+    color: white;
+    padding-left: 10px;
+    margin-top: 0;
+    caret-color: #B300F2;
+}
+
+.inputPassword {
+    width: 30%;
+    height: 8%;
+    background: #272541;
+    border: 1px solid #B300F2;
+    border-radius: 8px;
+    margin: 5px;
+    font-size: large;
+    color: white;
+    padding-left: 10px;
+    caret-color: #B300F2;
+
+}
+
+.btn {
+    color: white;
+    width: 30%;
+    height: 8%;
+    background: #535992;
+    border: 1px solid #EE00F2;
+    box-shadow: inset 0px -4px 32px -4px rgba(12, 12, 13, 0.1);
+    border-radius: 8px;
+    font-size: large;
+    cursor: pointer;
+
+}
+
+.btn:hover {
+    background-color: #B300F2;
+}
+
+.btnRetour {
+    color: white;
+    width: 10%;
+    height: 5%;
+    background: #535992;
+    border: 1px solid #EE00F2;
+    box-shadow: inset 0px -4px 32px -4px rgba(12, 12, 13, 0.1);
+    border-radius: 8px;
+    font-size: large;
+    cursor: pointer;
+    margin: 10px;
+}
+
+.btnRetour:hover {
+    background-color: #B300F2;
+}
