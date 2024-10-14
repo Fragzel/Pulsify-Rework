@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const userSchema = mongoose.Schema({
 
     username: { type: String, required: true },
+    firstname: { type: String, required: true },
+    createdAt: { type: Date, default: new Date() },
     email: { type: String, required: true, unique: true },
     google_id: { type: Number, required: false, unique: false, sparse: true /* Permet les valeurs nulles*/ },
     password: {
@@ -11,12 +13,11 @@ const userSchema = mongoose.Schema({
         default: null
     },
     token: { type: String, required: true },
-    prompts: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'projects' }], required: false, default: [] },
-    likedprompts: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'projects' }], required: false, default: [] },
-    firstname: { type: String, required: true },
+    likedProjects: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'projects' }], required: false, default: [] },
     picture: { type: String, required: false, default: null },
-    createdAt: { type: Date, default: new Date() },
-    genres: [String]
+    theme: { type: String, requiered: false },
+    language: { type: String, requiered: false },
+
 });
 
 const User = mongoose.model('users', userSchema);
