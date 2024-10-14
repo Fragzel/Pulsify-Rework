@@ -18,8 +18,11 @@ const userSchema = mongoose.Schema({
     theme: { type: String, requiered: false },
     language: { type: String, requiered: false },
 
+<<<<<<< HEAD
     prompts: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'projects' }], required: false, default: [] },
     genres: [String]
+=======
+>>>>>>> 555cdc952526e51d30a999696669cdbf2f066da1
 });
 
 const User = mongoose.model('users', userSchema);
