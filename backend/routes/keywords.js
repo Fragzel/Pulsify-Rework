@@ -13,20 +13,20 @@ router.post('/search', async (req, res) => {
         return;
     }
 
-    const fetchAllKeywords = await Keyword.find({ keyword: { $regex: new RegExp(req.body.keyword.toLowerCase(), "i") } })
+    const keywords = await Keyword.find({ keyword: { $regex: new RegExp(req.body.keyword, "i") } })
 
-    if (fetchAllKeywords.length) {
-        const prompts = []
+    if (keywords.length) {
+        const projects = []
 
-        for (const populatePrompts of fetchAllKeywords) {
-            const populatedPrompts = await populatePrompts.populate('prompts')
-            for (const userIdInPrompt of populatedPrompts.prompts) {
-                const userIdInPromptPopulated = await userIdInPrompt.populate('userId')
-                userIdInPromptPopulated.isPublic && prompts.push(userIdInPromptPopulated)
+        for (const keyword of keywords) {
+            const keywordData = await keyword.populate('prompts')
+            for (const user of keywordData.prompts) {
+                const userData = await user.populate('userId')
+                userData.isPublic && projects.push(userData)
             }
         }
-        if (prompts.length) {
-            res.json({ result: true, keywordsList: prompts })
+        if (projects.length) {
+            res.json({ result: true, keywordsList: projects })
         } else {
             res.json({ result: false, error: 'Mot clé existant mais projet associé non public' })
         }
@@ -120,7 +120,7 @@ router.post("/suggestions", async (req, res) => {
         }
     } else {
         pipeline.push(
-            // Match pour garder les keywords qui correspondent à tous le prompts likés, au genre et à ce qui est tapé dans le prompt
+            // Match pour garder les keywords qui correspondent à tous les prompts likés, et au genre
             {
                 $match: {
                     _id: { $in: foundUser.likedprompts },
@@ -144,7 +144,7 @@ router.post("/suggestions", async (req, res) => {
                 as: "related_keyword_data"
             }
         },
-        // On acède aux data des related_keywords de façon individuelle
+        // On accède aux data des related_keywords de façon individuelle
         {
             $unwind: "$related_keyword_data"
         },
@@ -196,11 +196,11 @@ router.post("/suggestions", async (req, res) => {
     suggestionsList = await Keyword.aggregate(pipeline);
 
     // Réponse avec la liste de suggestions
-    if (suggestionsList.length > 0) {
-        res.json({ result: true, totalScore: suggestionsList[0].totalScore, suggestionsList: suggestionsList[0].suggestions });
-    } else {
-        res.json({ result: true, totalScore: 0, suggestionsList: [] });
-    }
+    res.json(suggestionsList.length 
+        ? { result: true, totalScore: suggestionsList[0].totalScore, suggestionsList: suggestionsList[0].suggestions }
+        : { result: true, totalScore: 0, suggestionsList: [] }
+      );
+      
 })
 
 

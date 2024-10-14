@@ -155,23 +155,16 @@ router.post('/searchGenre', async (req, res) => {
     if (!foundUser) { return res.json({ result: false, error: 'Access denied' }) };
 
     // Recherche par genre en ignorant la casse
-    const fetchAllPrompts = await Project.find({ genre: { $regex: new RegExp(req.body.genre.toLowerCase(), "i") } })
+    const fetchedProjects = await Project.find({ genre: { $regex: new RegExp(req.body.genre, "i") } })
 
-    if (fetchAllPrompts.length) {
-
-        const prompts = []
-
-        for (const populateUserId of fetchAllPrompts) {
-            const userIdPopulatedInPrompt = await populateUserId.populate('userId')
-            userIdPopulatedInPrompt.isPublic && prompts.push(userIdPopulatedInPrompt)
+    if (fetchedProjects.length) {
+        const projects = []
+        for (const user of fetchedProjects) {
+            const userData = await user.populate('userId')
+            userData.isPublic && projects.push(userData)
         }
-
-        if (prompts.length) {
-            res.json({ result: true, promptsList: prompts })
-        } else {
-            res.json({ result: false, error: 'Genre existant mais non public' })
-        }
-
+        res.json(projects.length ? { result: true, promptsList: projects } : { result: false, error: 'Genre existant mais non public' });
+        
     } else {
         res.json({ result: false, error: 'Genre non existant' })
     }

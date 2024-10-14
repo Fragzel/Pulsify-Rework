@@ -125,7 +125,7 @@ router.post('/search', async (req, res) => {
   const foundUser = await User.findOne({ email: req.body.email, token: req.body.token })
   if (!foundUser) { return res.json({ result: false, error: 'Access denied' }) };
 
-  const fetchAllUser = await User.find({ username: { $regex: new RegExp(req.body.username.toLowerCase(), "i") } })
+  const fetchAllUser = await User.find({ username: { $regex: new RegExp(req.body.username, "i") } })
   if (fetchAllUser.length) {
     const prompts = []
 
@@ -150,7 +150,7 @@ router.post('/search', async (req, res) => {
 })
 
 
-// Rechercher les prompts de l'utilisateur
+// Retourne les projets de l'utilisateur
 router.post('/projets', async (req, res) => {
 
   // Vérifier que les champs sont tous fournis
@@ -178,7 +178,7 @@ router.post('/projets', async (req, res) => {
 
 
 
-// Recherche des genres de l'utilisateurs
+// Retourne les genres de l'utilisateur
 router.post('/genres', async (req, res) => {
   if (!checkBody(req.body, ['token', 'email'])) {
     res.json({ result: false, error: 'Champs manquants.' });
@@ -221,16 +221,13 @@ router.post("/like", async (req, res) => {
   if (!foundUser) { return res.json({ result: false, error: 'Access denied' }) };
 
   // Ajouter ou retirer un like
-  if (!foundUser.likedprompts.includes(req.body.id)) {
-    await User.updateOne({ email: req.body.email },
-      { $push: { likedprompts: req.body.id } }
-    )
-  } else {
-    await User.updateOne({ email: req.body.email },
-      { $pull: { likedprompts: req.body.id } }
-    )
-  }
+  await User.updateOne({ email: req.body.email },
+    foundUser.likedprompts.includes(req.body.id) ?
+      { $pull: { likedprompts: req.body.id } } :
+      { $push: { likedprompts: req.body.id } });
+
   const updatedUser = await User.findOne({ email: req.body.email, token: req.body.token })
+
   res.json({ result: true, likedPrompts: updatedUser.likedprompts })
 })
 
@@ -265,10 +262,9 @@ router.post("/getLikeNumberAndCommentsNumber", async (req, res) => {
   let commentNumber = 0
   const foundAllUsers = await User.find()
   for (const user of foundAllUsers) {
-    if (user.likedprompts.includes(req.body.id)) {
-      likeNumber++
-    }
+    user.likedprompts.includes(req.body.id) && likeNumber++
   }
+
   const foundProject = await Project.findById(req.body.id)
   foundProject && (commentNumber = foundProject.messages.length)
 
