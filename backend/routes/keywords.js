@@ -58,7 +58,6 @@ router.post("/suggestions", async (req, res) => {
     if (req.body.partialPrompt === '') {
         if (!req.body.includeLikedProjects) {
             const allKeywords = await Keyword.find({ userId: foundUser._id, genre: req.body.genre });
-         
             res.json({ result: true, totalScore: 0, suggestionsList: allKeywords });
             return;
         } else {
@@ -195,8 +194,6 @@ router.post("/suggestions", async (req, res) => {
     );
 
     suggestionsList = await Keyword.aggregate(pipeline);
-
-    //console.log(suggestionsList)
 
     // Réponse avec la liste de suggestions
     res.json(suggestionsList.length
