@@ -56,7 +56,7 @@ router.post("/suggestions", async (req, res) => {
 
     // Afficher des suggestions de départ si le champ prompt n'est pas rempli
     if (req.body.partialPrompt === '') {
-        if (!req.body.includeLikedPrompts) {
+        if (!req.body.includeLikedProjects) {
             const allKeywords = await Keyword.find({ userId: foundUser._id, genre: req.body.genre });
          
             res.json({ result: true, totalScore: 0, suggestionsList: allKeywords });
@@ -95,7 +95,7 @@ router.post("/suggestions", async (req, res) => {
     let pipeline = [];
 
     if (req.body.partialPrompt) {
-        if (req.body.includeLikedPrompts) {
+        if (req.body.includeLikedProjects) {
             // Si la case Inclure la Communauté est cochée
             pipeline.push(
                 // Match pour garder les keywords qui correspondent à tous le prompts likés, au genre et à ce qui est tapé dans le prompt
@@ -124,7 +124,7 @@ router.post("/suggestions", async (req, res) => {
             // Match pour garder les keywords qui correspondent à tous les prompts likés, et au genre
             {
                 $match: {
-                    _id: { $in: foundUser.likedprompts },
+                    _id: { $in: foundUser.likedProjects },
                     genre: req.body.genre,
                 }
             }
@@ -199,11 +199,11 @@ router.post("/suggestions", async (req, res) => {
     //console.log(suggestionsList)
 
     // Réponse avec la liste de suggestions
-    res.json(suggestionsList.length 
+    res.json(suggestionsList.length
         ? { result: true, totalScore: suggestionsList[0].totalScore, suggestionsList: suggestionsList[0].suggestions }
         : { result: true, totalScore: 0, suggestionsList: [] }
-      );
-      
+    );
+
 })
 
 

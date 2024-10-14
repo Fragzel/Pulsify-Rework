@@ -41,7 +41,7 @@ function Profil() {
         if (!data) {
           Error('Erreur lors de la récupération des prompts');
         } else {
-          dispatch(setLikedList(data.likedPrompts))
+          dispatch(setLikedList(data.likedProjects))
         }
       });
   }
@@ -66,7 +66,7 @@ function Profil() {
             Error('Erreur lors de la récupération des prompts');
           } else {
             setMyPrompts(data.myPrompts.prompts)
-            setCommunityList(data.likedprompts)
+            setCommunityList(data.likedProjects)
           }
 
         });

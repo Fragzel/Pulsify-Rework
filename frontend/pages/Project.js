@@ -28,7 +28,7 @@ function Project() {
     const [blink, setBlink] = useState(false);
     const [totalScore, setTotalScore] = useState(0);
     const [spotifyNoResult, setSpotifyNoResult] = useState(false);
-    const [includeLikedPrompts, setIncludeLikedPrompts] = useState(false);
+    const [includeLikedProjects, setIncludeLikedProjects] = useState(false);
     const [isCheckBoxChecked, setIsCheckBoxChecked] = useState(false);
 
     const router = useRouter();
@@ -46,7 +46,7 @@ function Project() {
         }
         if (router.query.isCommunity) {
             setIsCheckBoxChecked(true);
-            setIncludeLikedPrompts(true);
+            setIncludeLikedProjects(true);
         }
     }, [])
 
@@ -59,7 +59,7 @@ function Project() {
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, token, genre: projectGenre, partialPrompt: projectPrompt, includeLikedPrompts }),
+                body: JSON.stringify({ email, token, genre: projectGenre, partialPrompt: projectPrompt, includeLikedProjects: includeLikedProjects }),
             })
 
         const resSuggestions = await fetchSuggestions.json();
@@ -73,7 +73,7 @@ function Project() {
     // Rechercher des suggestions à chaque fois que l'utilisateur entre un caractère dans l'imput de prompt
     useEffect(() => {
         fetchSuggestions();
-    }, [projectPrompt, projectGenre, includeLikedPrompts])
+    }, [projectPrompt, projectGenre, includeLikedProjects])
 
     // Fonction qui permet de sélectionner le genre depuis la modale
     const handleGenreSelect = (selectedGenre) => {
@@ -223,7 +223,7 @@ function Project() {
         if (projectGenre) {
             setGenreIsInvalid(false)
             setIsCheckBoxChecked(e.target.checked)
-            setIncludeLikedPrompts(!includeLikedPrompts)
+            setIncludeLikedProjects(!includeLikedProjects)
         } else {
             setGenreIsInvalid(true)
             triggerBlink()
@@ -246,7 +246,7 @@ function Project() {
                                 <input type="checkbox"
                                     className={styles.checkBoxSuggestion}
                                     checked={isCheckBoxChecked}
-                                    value={includeLikedPrompts}
+                                    value={includeLikedProjects}
                                     onChange={(e) => { checkbox(e) }} />
                                 <span className={styles.customCheckbox}></span>
                                 Intégrez les mots-clés de la communauté
