@@ -66,19 +66,19 @@ router.post("/add", async (req, res) => {
         }
     }
 
-    // Créer un tableau des id présents en clé étrangère pour le keyword s'il n'existe pas. S'il existe, on rajoute les keywords dans ses related_keywords.
+    // Créer un tableau des id présents en clé étrangère pour le keyword s'il n'existe pas. S'il existe, on rajoute les keywords dans ses relatedKeywords.
     const existingKeywordIds = [];
     const newKeywordIds = [];
 
     for (const word of keywords) {
-        const foundKeyword = await Keyword.findOne({ keyword: word, userId: foundUser._id, genre: req.body.genre });
+        const foundKeyword = await Keyword.findOne({ name: word, userId: foundUser._id, genre: req.body.genre });
         if (foundKeyword) {
             existingKeywordIds.push(foundKeyword._id);
         } else {
             const newKeyword = new Keyword({
                 userId: foundUser._id,
-                keyword: word,
-                frequency: 1,
+                name: word,
+                iterations: 1,
                 average_rating: req.body.rating,
                 prompts: savedProject._id,
                 genre: req.body.genre
@@ -92,37 +92,37 @@ router.post("/add", async (req, res) => {
         { keywords: mergedKeywordIds }
     );
 
-    // Si l'id n'est pas présent dans les related_Keywords, on le rajoute
+    // Si l'id n'est pas présent dans les relatedKeywords, on le rajoute
     if (newKeywordIds.length) {
         const keywordsData = await Keyword.find({ _id: { $in: newKeywordIds } });
 
         for (const keywordData of keywordsData) {
-            const { _id, keyword } = keywordData;
+            const { _id, name } = keywordData;
 
-            const filteredKeywordIds = keywords.filter(e => e === keyword).length > 1
+            const filteredKeywordIds = keywords.filter(e => e === name).length > 1
                 ? newKeywordIds
                 : newKeywordIds.filter(e => e !== _id.toString());
 
             const allKeywordsIdsOfThisGenre = [...filteredKeywordIds, ...existingKeywordIds];
 
             await Keyword.updateOne({ _id, genre: req.body.genre }, {
-                $push: { related_keywords: allKeywordsIdsOfThisGenre }
+                $push: { relatedKeywords: allKeywordsIdsOfThisGenre }
             });
         }
     }
 
-    // Si il y a déjà des related_keywords pour ce projet, ajoute ceux qui n'y sont pas déjà.
+    // Si il y a déjà des relatedKeywords pour ce projet, ajoute ceux qui n'y sont pas déjà.
     if (existingKeywordIds.length) {
         for (const id of existingKeywordIds) {
             // const keyword = await Keyword.findById(id);
             const keyword = await Keyword.findById(id).populate('prompts');
             const kewordIdsToAdd = [];
             for (let i = 0; i < newKeywordIds.length; i++) {
-                if (!keyword.related_keywords.some(e => String(e) === String(newKeywordIds[i]))) {
+                if (!keyword.relatedKeywords.some(e => String(e) === String(newKeywordIds[i]))) {
                     kewordIdsToAdd.push(newKeywordIds[i]);
                 }
             }
-            const updateRelatedKeywordId = [...keyword.related_keywords, ...kewordIdsToAdd];
+            const updateRelatedKeywordId = [...keyword.relatedKeywords, ...kewordIdsToAdd];
 
             let resultAverageRating = 0;
             const promptKeywordsCount = (keyword.prompts).length;
@@ -131,15 +131,15 @@ router.post("/add", async (req, res) => {
             }
             if (!keyword.prompts.some(e => String(e) === String(savedProject._id))) {
                 await Keyword.updateOne({ _id: id }, {
-                    $inc: { frequency: 1 },
-                    related_keywords: updateRelatedKeywordId,
+                    $inc: { iterations: 1 },
+                    relatedKeywords: updateRelatedKeywordId,
                     $push: { prompts: savedProject._id },
                     average_rating: resultAverageRating / promptKeywordsCount
                 });
             } else {
                 await Keyword.updateOne({ _id: id }, {
-                    $inc: { frequency: 1 },
-                    related_keywords: updateRelatedKeywordId,
+                    $inc: { iterations: 1 },
+                    relatedKeywords: updateRelatedKeywordId,
                     average_rating: resultAverageRating / promptKeywordsCount
                 });
             }

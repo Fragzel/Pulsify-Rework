@@ -93,7 +93,7 @@ function Project() {
             return (
                 <div className={styles.suggestionItem} onClick={() => addGenreFromSearchBar(data.keyword)}>
                     <div className={styles.suggestionItemLeft}>
-                        <div key={i} >{data.keyword}</div>
+                        <div key={i} >{data.name}</div>
                     </div>
                     {totalScore ? <div className={styles.suggestionItemRight}>{pourcentage}%</div> : <></>}
                 </div>

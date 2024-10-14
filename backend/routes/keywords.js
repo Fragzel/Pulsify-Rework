@@ -58,11 +58,12 @@ router.post("/suggestions", async (req, res) => {
     if (req.body.partialPrompt === '') {
         if (!req.body.includeLikedPrompts) {
             const allKeywords = await Keyword.find({ userId: foundUser._id, genre: req.body.genre });
+         
             res.json({ result: true, totalScore: 0, suggestionsList: allKeywords });
             return;
         } else {
             const allKeywords = await Keyword.find({ genre: req.body.genre });
-            res.json({ result: true, totalScore: 0, suggestionsList: allKeywords.sort((a, b) => { a.frequency - b.frequency }) });
+            res.json({ result: true, totalScore: 0, suggestionsList: allKeywords.sort((a, b) => { a.iterations - b.iterations }) });
             return;
         }
     }
@@ -87,7 +88,7 @@ router.post("/suggestions", async (req, res) => {
 
     //Initialisation des coefficients de calcul du score
     const weight_rating = 0.7;
-    const weight_frequency = 0.3;
+    const weight_iterations = 0.3;
 
     // Création de la pipeline Mongoose
 
@@ -101,7 +102,7 @@ router.post("/suggestions", async (req, res) => {
                 {
                     $match: {
                         genre: req.body.genre,
-                        keyword: { $in: regexKeywords }
+                        name: { $in: regexKeywords }
                     }
                 }
             );
@@ -113,7 +114,7 @@ router.post("/suggestions", async (req, res) => {
                     $match: {
                         userId: foundUser._id,
                         genre: req.body.genre,
-                        keyword: { $in: regexKeywords }
+                        name: { $in: regexKeywords }
                     }
                 }
             );
@@ -131,20 +132,20 @@ router.post("/suggestions", async (req, res) => {
     }
 
     pipeline.push(
-        // On unwind related_keywords pour traiter chacun individuellement
+        // On unwind relatedKeywords pour traiter chacun individuellement
         {
-            $unwind: "$related_keywords"
+            $unwind: "$relatedKeywords"
         },
         // Populate ou 'jointure'
         {
             $lookup: {
                 from: "keywords",
-                localField: "related_keywords",
+                localField: "relatedKeywords",
                 foreignField: "_id",
                 as: "related_keyword_data"
             }
         },
-        // On accède aux data des related_keywords de façon individuelle
+        // On accède aux data des relatedKeywords de façon individuelle
         {
             $unwind: "$related_keyword_data"
         },
@@ -154,7 +155,7 @@ router.post("/suggestions", async (req, res) => {
                 score_global: {
                     $add: [
                         { $multiply: [weight_rating, "$related_keyword_data.average_rating"] },
-                        { $multiply: [weight_frequency, { $log10: "$related_keyword_data.frequency" }] }
+                        { $multiply: [weight_iterations, { $log10: "$related_keyword_data.iterations" }] }
                     ]
                 }
             }
@@ -163,14 +164,14 @@ router.post("/suggestions", async (req, res) => {
         {
             $group: {
                 _id: "$related_keyword_data._id",
-                keyword: { $first: "$related_keyword_data.keyword" },
+                name: { $first: "$related_keyword_data.name" },
                 score_global: { $sum: "$score_global" }
             }
         },
         // On enlève des résultats les keywords que l'utilisateur a déjà tapé
         {
             $match: {
-                keyword: { $nin: keywords }
+                name: { $nin: keywords }
             }
         },
         // Le tri
@@ -188,12 +189,14 @@ router.post("/suggestions", async (req, res) => {
             $group: {
                 _id: null,
                 totalScore: { $sum: "$score_global" },
-                suggestions: { $push: { keyword: "$keyword", score_global: "$score_global" } }
+                suggestions: { $push: { name: "$name", score_global: "$score_global" } }
             }
         }
     );
 
     suggestionsList = await Keyword.aggregate(pipeline);
+
+    //console.log(suggestionsList)
 
     // Réponse avec la liste de suggestions
     res.json(suggestionsList.length 
