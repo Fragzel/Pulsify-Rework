@@ -165,7 +165,7 @@ router.post('/projets', async (req, res) => {
 
   // Populate
   const populatedUser = await foundUser.populate('prompts')
-  const populatedUserWithLikes = await populatedUser.populate('likedProjects ')
+  const populatedUserWithLikes = await populatedUser.populate('likedProjects')
   let foundUserPopulated = []
   for (const id of populatedUserWithLikes.likedProjects) {
     foundUserPopulated.push(await id.populate('userId'))
