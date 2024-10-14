@@ -165,14 +165,14 @@ router.post('/projets', async (req, res) => {
 
   // Populate
   const populatedUser = await foundUser.populate('prompts')
-  const populatedUserWithLikes = await populatedUser.populate('likedprompts')
+  const populatedUserWithLikes = await populatedUser.populate('likedProjects ')
   let foundUserPopulated = []
-  for (const id of populatedUserWithLikes.likedprompts) {
+  for (const id of populatedUserWithLikes.likedProjects) {
     foundUserPopulated.push(await id.populate('userId'))
   }
 
   // Réponse
-  res.json({ result: true, myPrompts: foundUser, likedprompts: foundUserPopulated })
+  res.json({ result: true, myPrompts: foundUser, likedProjects: foundUserPopulated })
 
 })
 
@@ -196,9 +196,9 @@ router.post('/genres', async (req, res) => {
 
   // Récupération de tous les genres
   if (req.body.getLikedGenres) {
-    const populatedUser = await foundUser.populate('likedprompts');
+    const populatedUser = await foundUser.populate('likedProjects');
     const listPrompts = [];
-    for (let prompt of populatedUser.likedprompts) {
+    for (let prompt of populatedUser.likedProjects) {
       !listPrompts.includes(prompt) && listPrompts.push(prompt.genre)
     }
     res.json({ result: true, genres: listPrompts })
@@ -222,13 +222,13 @@ router.post("/like", async (req, res) => {
 
   // Ajouter ou retirer un like
   await User.updateOne({ email: req.body.email },
-    foundUser.likedprompts.includes(req.body.id) ?
-      { $pull: { likedprompts: req.body.id } } :
-      { $push: { likedprompts: req.body.id } });
+    foundUser.likedProjects.includes(req.body.id) ?
+      { $pull: { likedProjects: req.body.id } } :
+      { $push: { likedProjects: req.body.id } });
 
   const updatedUser = await User.findOne({ email: req.body.email, token: req.body.token })
 
-  res.json({ result: true, likedPrompts: updatedUser.likedprompts })
+  res.json({ result: true, likedProjects: updatedUser.likedProjects })
 })
 
 router.post("/likedPosts", async (req, res) => {
@@ -243,7 +243,7 @@ router.post("/likedPosts", async (req, res) => {
   if (!foundUser) { return res.json({ result: false, error: 'Access denied' }) };
 
   // Renvoie les projets likés de l'utilisateur
-  res.json({ result: true, likedPrompts: foundUser.likedprompts })
+  res.json({ result: true, likedProjects: foundUser.likedProjects })
 
 })
 
@@ -262,7 +262,7 @@ router.post("/getLikeNumberAndCommentsNumber", async (req, res) => {
   let commentNumber = 0
   const foundAllUsers = await User.find()
   for (const user of foundAllUsers) {
-    user.likedprompts.includes(req.body.id) && likeNumber++
+    user.likedProjects.includes(req.body.id) && likeNumber++
   }
 
   const foundProject = await Project.findById(req.body.id)

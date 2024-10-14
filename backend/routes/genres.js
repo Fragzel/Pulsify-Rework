@@ -98,7 +98,7 @@ router.post("/searchLikedGenres", async (req, res) => {
 
     // Récupération des projets que l'utilisateur a liké et qui sont publics
     let likedProjects = await Project.find({
-        _id: { $in: foundUser.likedprompts },
+        _id: { $in: foundUser.likedProjects },
         isPublic: true,
         ...(formattedSearch && {
             $or: [
@@ -164,7 +164,7 @@ router.post('/searchGenre', async (req, res) => {
             userData.isPublic && projects.push(userData)
         }
         res.json(projects.length ? { result: true, promptsList: projects } : { result: false, error: 'Genre existant mais non public' });
-        
+
     } else {
         res.json({ result: false, error: 'Genre non existant' })
     }

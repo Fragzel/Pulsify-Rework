@@ -75,8 +75,8 @@ function PromptCard(props) {
             body: JSON.stringify({ email, id, token })
         })
         const responseLiked = await response.json()
-        dispatch(setLikedList(responseLiked.likedPrompts))
-        setIsLiked(responseLiked.likedPrompts.includes(id));
+        dispatch(setLikedList(responseLiked.likedProjects))
+        setIsLiked(responseLiked.likedProjects.includes(id));
         getLikeNumberAndCommentsNumber()
     }
 

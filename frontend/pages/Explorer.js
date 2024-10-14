@@ -72,7 +72,7 @@ function Explorer() {
                 if (!data) {
                     Error('Erreur lors de la récupération des prompts');
                 } else {
-                    dispatch(setLikedList(data.likedPrompts))
+                    dispatch(setLikedList(data.likedProjects))
                 }
             });
     }
