@@ -112,7 +112,6 @@ function SignUp() {
             })
             const res = await fetchSignin.json()
             if (res.result) {
-                console.log(res.picture)
                 dispatch(login({ token: res.token, username: res.username, firstname: res.firstname, email: res.email, picture: res.picture }));
                 router.push({ pathname: '/Accueil' });
             } else {
