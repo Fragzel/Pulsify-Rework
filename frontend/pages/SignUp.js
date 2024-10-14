@@ -34,7 +34,7 @@ function SignUp() {
 
     user.token && router.push({ pathname: '/Accueil' });
 
-
+    // coucou
     let passwordEye;
     let rePasswordEye
     if (showPassword) {
