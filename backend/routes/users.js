@@ -157,15 +157,24 @@ router.post('/projets', async (req, res) => {
   if (!foundUser) { return res.json({ result: false, error: 'Access denied' }) };
 
   // Populate
-  const populatedUser = await foundUser.populate('prompts')
-  const populatedUserWithLikes = await populatedUser.populate('likedProjects')
-  let foundUserPopulated = []
-  for (const id of populatedUserWithLikes.likedProjects) {
-    foundUserPopulated.push(await id.populate('userId'))
+  const foundProjects = await Project.find({ userId: foundUser._id }).populate("genre")
+
+  if(!foundProjects){res.json({result: false, message : "no projects"})}
+  
+  const likedProjects = await foundUser.populate('likedProjects', 'genre')
+  let projectInfo = [];
+  for (const id of likedProjects.likedProjects) {
+    projectInfo.push({author : await id.populate('userId', 'firstname picture username'), projectInfos : {
+      audio: id.audio,
+      genre: id.genre.name,
+      name: id.name,
+      prompt: id.prompt,
+      rating: id.rating,
+    }})
   }
 
   // Réponse
-  res.json({ result: true, myPrompts: foundUser, likedProjects: foundUserPopulated })
+  res.json({ result: true, myPrompts: foundProjects, likedProjects: projectInfo })
 
 })
 

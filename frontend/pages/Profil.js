@@ -65,7 +65,7 @@ function Profil() {
           if (!data) {
             Error('Erreur lors de la récupération des prompts');
           } else {
-            setMyPrompts(data.myPrompts.prompts)
+            setMyPrompts(data.myPrompts)
             setCommunityList(data.likedProjects)
           }
 
@@ -90,7 +90,6 @@ function Profil() {
   }
 
   const listBibliotheque = myPrompts.map((data, i) => {
-
     return (
       <div className={styles.promptCard}>
         <PromptCard
@@ -103,14 +102,13 @@ function Profil() {
           projectName={data.name}
           prompt={data.prompt}
           id={data._id}
-          genre={data.genre}
+          genre={data.genre.name}
           onRemove={() => handleUpdate(data._id)}
           reRender={refresh} />
       </div>)
   }).reverse()
 
   const communityMap = communityList.map((data, i) => {
-    console.log('data.id :', data._id)
     return (
       <div className={styles.promptCard}>
         <PromptCard
