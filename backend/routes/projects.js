@@ -5,8 +5,8 @@ const { checkBody } = require('../modules/tools')
 const Project = require('../models/projects');
 const User = require('../models/users')
 const Keyword = require("../models/keywords")
-const Signalement = require("../models/signalements")
 const cloudinary = require('../cloudinary');
+const Genre = require('../models/genres')
 
 // Middelware pour décoder les données de l'audio venant du frontend
 const multer = require('multer');
@@ -25,12 +25,24 @@ router.post("/add", async (req, res) => {
     const foundUser = await User.findOne({ email: req.body.email, token: req.body.token })
     !foundUser && res.json({ result: false, error: 'Access denied' });
 
+    let foundGenreId;
+    foundGenreId = await Genre.findOne({ name: req.body.genre })._id;
+    if (!foundGenreId){ 
+        const newGenre = new Genre({ userId: foundUser._id, name: req.body.genre });
+        try {
+            const savedGenre = await newGenre.save();
+            foundGenreId = savedGenre._id;
+        } catch (error) {
+            console.error('Error saving genre:', error);
+        }
+    }
+
     // Enregistrer en base de donnée le Prompt, sans les espaces à la fin et au début, et sans la virgule à la fin, et sans l'audio, même s'il y en a un
     const trimmedPrompt = req.body.prompt.trim();
     const formattedPrompt = trimmedPrompt[trimmedPrompt.length - 1] === "," ? trimmedPrompt.slice(0, -1) : trimmedPrompt;
 
     const newProject = new Project({
-        genre: req.body.genre, // a mettre dans la collec genres 
+        genre: foundGenreId,
         prompt: formattedPrompt,
         audio: "",
         rating: req.body.rating,
@@ -41,17 +53,6 @@ router.post("/add", async (req, res) => {
     });
 
     const savedProject = await newProject.save();
-
-
-    // Mettre à jour le tableau de clé étrangère "prompts" avec l'id du prompt et le tableau genre si le genre n'y est pas déjà 
-    await User.updateOne({ email: req.body.email },
-        { $push: { prompts: savedProject._id } });
-
-    if (!foundUser.genres.some(e => e === req.body.genre)) {
-        await User.updateOne({ email: req.body.email },
-            { $push: { genres: req.body.genre } }
-        );
-    }
 
     // Récupérer les keywords de manière formatée 
     const keywords = []; //liste des Keywords et formaté du prompt . 
@@ -70,7 +71,7 @@ router.post("/add", async (req, res) => {
     const newKeywordIds = [];
 
     for (const word of keywords) {
-        const foundKeyword = await Keyword.findOne({ name: word, userId: foundUser._id, genre: req.body.genre });
+        const foundKeyword = await Keyword.findOne({ name: word, userId: foundUser._id, genre: foundGenreId });
         if (foundKeyword) {
             existingKeywordIds.push(foundKeyword._id);
         } else {
@@ -79,7 +80,7 @@ router.post("/add", async (req, res) => {
                 name: word,
                 iterations: 1,
                 average_rating: req.body.rating,
-                genre: req.body.genre
+                genre: foundGenreId
             });
             const savedKeyword = await newKeyword.save();
             newKeywordIds.push(savedKeyword._id);
@@ -99,7 +100,7 @@ router.post("/add", async (req, res) => {
 
             const allKeywordsIdsOfThisGenre = [...filteredKeywordIds, ...existingKeywordIds];
 
-            await Keyword.updateOne({ _id, genre: req.body.genre }, {
+            await Keyword.updateOne({ _id, genre: foundGenreId }, {
                 $push: { relatedKeywords: allKeywordsIdsOfThisGenre }
             });
         }

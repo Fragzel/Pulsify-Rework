@@ -8,14 +8,13 @@ const reportsSchema = mongoose.Schema({
 });
 
 const projectsSchema = mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: false },
-    keywords: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'keywords' }], required: false },// a virer
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
     name: { type: String, required: true },
     createdAt: { type: Date, default: new Date() },
     prompt: { type: String, required: true },
-    genre: { type: String, required: true },  // a virer 
+    genre: { type: mongoose.Schema.Types.ObjectId, ref: 'genres', required: true },
     audio: { type: String, required: false },
-    rating: { type: Number, required: false },
+    rating: { type: Number, required: true },
     isPublic: { type: Boolean, required: true },
     theme: { type: String, required: false },
     reports: [reportsSchema],
@@ -27,8 +26,6 @@ const projectsSchema = mongoose.Schema({
     }]
 });
 
-
 const Project = mongoose.model('projects', projectsSchema);
 
 module.exports = Project;
-

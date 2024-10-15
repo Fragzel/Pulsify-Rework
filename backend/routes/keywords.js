@@ -53,15 +53,16 @@ router.post("/suggestions", async (req, res) => {
 
     // Initialisation de la liste de suggestions
     let suggestionsList = [];
+    const foundGenreId = await Genre.findOne({ name: { $regex: new RegExp(req.body.genre, "i") } })._id
 
     // Afficher des suggestions de départ si le champ prompt n'est pas rempli
     if (req.body.partialPrompt === '') {
         if (!req.body.includeLikedProjects) {
-            const allKeywords = await Keyword.find({ userId: foundUser._id, genre: req.body.genre });
+            const allKeywords = await Keyword.find({ userId: foundUser._id, genre: foundGenreId });
             res.json({ result: true, totalScore: 0, suggestionsList: allKeywords });
             return;
         } else {
-            const allKeywords = await Keyword.find({ genre: req.body.genre });
+            const allKeywords = await Keyword.find({ genre: foundGenreId });
             res.json({ result: true, totalScore: 0, suggestionsList: allKeywords.sort((a, b) => { a.iterations - b.iterations }) });
             return;
         }
@@ -100,7 +101,7 @@ router.post("/suggestions", async (req, res) => {
                 // Match pour garder les keywords qui correspondent à tous le prompts likés, au genre et à ce qui est tapé dans le prompt
                 {
                     $match: {
-                        genre: req.body.genre,
+                        genre: foundGenreId,
                         name: { $in: regexKeywords }
                     }
                 }
@@ -112,7 +113,7 @@ router.post("/suggestions", async (req, res) => {
                 {
                     $match: {
                         userId: foundUser._id,
-                        genre: req.body.genre,
+                        genre: foundGenreId,
                         name: { $in: regexKeywords }
                     }
                 }
@@ -124,7 +125,7 @@ router.post("/suggestions", async (req, res) => {
             {
                 $match: {
                     _id: { $in: foundUser.likedProjects },
-                    genre: req.body.genre,
+                    genre: foundGenreId,
                 }
             }
         );

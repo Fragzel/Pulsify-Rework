@@ -155,12 +155,13 @@ router.post('/searchGenre', async (req, res) => {
     if (!foundUser) { return res.json({ result: false, error: 'Access denied' }) };
 
     // Recherche par genre en ignorant la casse
-    const fetchedProjects = await Project.find({ genre: { $regex: new RegExp(req.body.genre, "i") } })
+    const foundGenreId = await Genre.findOne({ name: { $regex: new RegExp(req.body.genre, "i") } })._id
+    const fetchedProjects = await Project.find({ genre: foundGenreId })
 
     if (fetchedProjects.length) {
         const projects = []
-        for (const user of fetchedProjects) {
-            const userData = await user.populate('userId')
+        for (const project of fetchedProjects) {
+            const userData = await project.populate('userId')
             userData.isPublic && projects.push(userData)
         }
         res.json(projects.length ? { result: true, promptsList: projects } : { result: false, error: 'Genre existant mais non public' });
@@ -206,29 +207,20 @@ router.post('/removeGenre', async (req, res) => {
         res.json({ result: false, error: 'Champs manquants ou vides' });
         return;
     }
+    
     // Authentification de l'utilisateur
     const foundUser = await User.findOne({ email: req.body.email, token: req.body.token })
     if (!foundUser) { return res.json({ result: false, error: 'Access denied' }) };
 
-    // Récupération de tous les genres
-    foundUser.genres = foundUser.genres.filter(e => e !== req.body.genre);
-    const foundProjects = await Project.find({ userId: foundUser._id, genre: req.body.genre })
+    const foundProjects = await Project.deleteMany({ userId: foundUser._id, name: req.body.genre })
+    const updatedUserGenre = await Genre.updateOne({ _id: foundUser._id, name: req.body.genre }, {userId : ""})
+    const keywordGenreList = await Keyword.updateMany({ _id: updatedUserGenre._id, userId: foundUser._id }, { userId: "" })
 
-    // Retirer les Id des projets des prompts dans l'utilisateur 
-    for (let i = 0; i < foundProjects.length; i++) {
-        foundUser.prompts = foundUser.prompts.filter(e => String(foundProjects[i]._id) !== String(e))
-    }
-
-    await foundUser.save();
-
-    const foundKeywords = await Keyword.deleteMany({ genre: req.body.genre, userId: foundUser._id });
-    const foundProjectForDelete = await Project.deleteMany({ genre: req.body.genre, userId: foundUser._id });
-
-    if (foundProjectForDelete) {
-        res.json({ result: true, message: 'Successfully deleted', genre: req.body.genre, projects: foundProjectForDelete, keywords: foundKeywords })
-    }
-
-
+    if (keywordGenreList && foundProjects && updatedUserGenre) {
+        res.json({ result: true, message: 'Successfully deleted' })
+        } else { 
+            res.json({ result: false, error: 'Not found' })
+        }
 })
 
 

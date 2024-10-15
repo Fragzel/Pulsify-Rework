@@ -127,18 +127,11 @@ router.post('/search', async (req, res) => {
 
   const fetchAllUser = await User.find({ username: { $regex: new RegExp(req.body.username, "i") } })
   if (fetchAllUser.length) {
-    const prompts = []
 
-    for (const user of fetchAllUser) {
-      const userPromptsPopulated = await user.populate('prompts')
-      for (const userIdInPrompt of userPromptsPopulated.prompts) {
-        const userIdInPromptPopulated = await userIdInPrompt.populate('userId')
-        userIdInPromptPopulated.isPublic && prompts.push(userIdInPromptPopulated)
-      }
-    }
+    // Récupérer les projets publics de l'utilisateur
+    const prompts = await Project.find({ userId: { $in: fetchAllUser } }).populate('userId')
 
     if (prompts.length) {
-
       res.json({ result: true, promptsList: prompts });
     } else {
       res.json({ result: false, error: "Cet auteur n'a aucun projet" });

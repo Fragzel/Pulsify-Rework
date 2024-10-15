@@ -6,7 +6,7 @@ const keywordsSchema = mongoose.Schema({
     iterations: { type: Number, required: true, default: 0 },
     average_rating: { type: Number, required: false },
     relatedKeywords: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'keywords' }], required: false },
-    genre: { type: String, required: true },
+    genre: { type: mongoose.Schema.Types.ObjectId, ref: 'genres', required: true },
     createdAt : { type: Date, default: new Date() }
 });
 
