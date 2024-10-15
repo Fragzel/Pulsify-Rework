@@ -7,7 +7,6 @@ const User = require('../models/users');
 const Project = require('../models/projects');
 const Genre = require('../models/genres');
 const { checkBody } = require('../modules/tools');
-const { picture } = require('../cloudinary');
 
 router.post('/search', async (req, res) => {
 
