@@ -17,7 +17,7 @@ const upload = multer({ storage: storage });
 router.post("/add", async (req, res) => {
 
     // Vérification des éléments requis pour la route
-    if (!checkBody(req.body, ['genre', 'prompt', 'email', "username", "rating", "title"])) {
+    if (!checkBody(req.body, ['genre', 'prompt', 'email', "username", "rating", "name", "token", "isPublic"])) {
         res.json({ result: false, error: 'Champs manquants ou vides' });
         return;
     }
@@ -36,7 +36,6 @@ router.post("/add", async (req, res) => {
         rating: req.body.rating,
         isPublic: req.body.isPublic,
         username: req.body.username,
-        email: req.body.email,
         userId: foundUser._id,
         name: req.body.name
     });
@@ -80,17 +79,12 @@ router.post("/add", async (req, res) => {
                 name: word,
                 iterations: 1,
                 average_rating: req.body.rating,
-                prompts: savedProject._id,
                 genre: req.body.genre
             });
             const savedKeyword = await newKeyword.save();
             newKeywordIds.push(savedKeyword._id);
         }
     }
-    const mergedKeywordIds = [...newKeywordIds, ...existingKeywordIds];
-    await Project.updateOne({ _id: savedProject._id },
-        { keywords: mergedKeywordIds }
-    );
 
     // Si l'id n'est pas présent dans les relatedKeywords, on le rajoute
     if (newKeywordIds.length) {
@@ -114,8 +108,7 @@ router.post("/add", async (req, res) => {
     // Si il y a déjà des relatedKeywords pour ce projet, ajoute ceux qui n'y sont pas déjà.
     if (existingKeywordIds.length) {
         for (const id of existingKeywordIds) {
-            // const keyword = await Keyword.findById(id);
-            const keyword = await Keyword.findById(id).populate('prompts');
+            const keyword = await Keyword.findById(id)
             const kewordIdsToAdd = [];
             for (let i = 0; i < newKeywordIds.length; i++) {
                 if (!keyword.relatedKeywords.some(e => String(e) === String(newKeywordIds[i]))) {
@@ -123,29 +116,16 @@ router.post("/add", async (req, res) => {
                 }
             }
             const updateRelatedKeywordId = [...keyword.relatedKeywords, ...kewordIdsToAdd];
-
-            let resultAverageRating = 0;
-            const promptKeywordsCount = (keyword.prompts).length;
-            for (const prompt of keyword.prompts) {
-                resultAverageRating += prompt.rating;
-            }
-            if (!keyword.prompts.some(e => String(e) === String(savedProject._id))) {
-                await Keyword.updateOne({ _id: id }, {
+            
+            let newScore = (keyword.average_rating * keyword.iterations) + savedProject.rating;
+            
+            await Keyword.updateOne({ _id: id }, {
                     $inc: { iterations: 1 },
                     relatedKeywords: updateRelatedKeywordId,
-                    $push: { prompts: savedProject._id },
-                    average_rating: resultAverageRating / promptKeywordsCount
+                    average_rating: newScore / ( keyword.iterations +1 )
                 });
-            } else {
-                await Keyword.updateOne({ _id: id }, {
-                    $inc: { iterations: 1 },
-                    relatedKeywords: updateRelatedKeywordId,
-                    average_rating: resultAverageRating / promptKeywordsCount
-                });
-            }
         }
     }
-
     res.json({ result: true, prompt: savedProject });
 })
 
