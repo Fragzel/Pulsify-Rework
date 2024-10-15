@@ -17,7 +17,7 @@ const upload = multer({ storage: storage });
 router.post("/add", async (req, res) => {
 
     // Vérification des éléments requis pour la route
-    if (!checkBody(req.body, ['genre', 'prompt', 'email', "username", "rating", "name", "token", "isPublic"])) {
+    if (!checkBody(req.body, ['genre', 'prompt', 'email', "username", "rating", "name", "token"])) {
         res.json({ result: false, error: 'Champs manquants ou vides' });
         return;
     }
