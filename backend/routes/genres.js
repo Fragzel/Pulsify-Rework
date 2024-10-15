@@ -3,6 +3,7 @@ var router = express.Router();
 require('../models/connection');
 const { checkBody } = require('../modules/tools')
 const Project = require('../models/projects');
+const Genre = require('../models/genres');
 const User = require('../models/users')
 const Keyword = require("../models/keywords")
 
@@ -207,20 +208,20 @@ router.post('/removeGenre', async (req, res) => {
         res.json({ result: false, error: 'Champs manquants ou vides' });
         return;
     }
-    
+
     // Authentification de l'utilisateur
     const foundUser = await User.findOne({ email: req.body.email, token: req.body.token })
     if (!foundUser) { return res.json({ result: false, error: 'Access denied' }) };
 
     const foundProjects = await Project.deleteMany({ userId: foundUser._id, name: req.body.genre })
-    const updatedUserGenre = await Genre.updateOne({ _id: foundUser._id, name: req.body.genre }, {userId : ""})
+    const updatedUserGenre = await Genre.updateOne({ _id: foundUser._id, name: req.body.genre }, { userId: "" })
     const keywordGenreList = await Keyword.updateMany({ _id: updatedUserGenre._id, userId: foundUser._id }, { userId: "" })
 
     if (keywordGenreList && foundProjects && updatedUserGenre) {
         res.json({ result: true, message: 'Successfully deleted' })
-        } else { 
-            res.json({ result: false, error: 'Not found' })
-        }
+    } else {
+        res.json({ result: false, error: 'Not found' })
+    }
 })
 
 

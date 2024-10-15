@@ -4,7 +4,10 @@ require('../models/connection');
 
 const Keyword = require('../models/keywords');
 const User = require('../models/users');
-const { checkBody } = require('../modules/tools')
+const Project = require('../models/projects');
+const Genre = require('../models/genres');
+const { checkBody } = require('../modules/tools');
+const { picture } = require('../cloudinary');
 
 router.post('/search', async (req, res) => {
 
@@ -12,18 +15,29 @@ router.post('/search', async (req, res) => {
         res.json({ result: false, error: 'Champs vides ou manquants' });
         return;
     }
+    const keywordList = await Keyword.find({ name: { $regex: new RegExp(req.body.keyword, "i") } })
+        .populate('userId', 'firstname picture username');
 
-    const keywords = await Keyword.find({ keyword: { $regex: new RegExp(req.body.keyword, "i") } })
-
-    if (keywords.length) {
+    if (keywordList.length) {
         const projects = []
 
-        for (const keyword of keywords) {
-            const keywordData = await keyword.populate('prompts')
-            for (const user of keywordData.prompts) {
-                const userData = await user.populate('userId')
-                userData.isPublic && projects.push(userData)
+        for (const keyword of keywordList) {
+            const foundProject = await Project.find({ userId: keyword.userId._id })
+            for (const project of foundProject) {
+                projects.push({
+                    audio: project.audio,
+                    genre: project.genre,
+                    name: project.name,
+                    prompt: project.prompt,
+                    rating: project.rating,
+                    firstname: keyword.userId.firstname,
+                    username: keyword.userId.username,
+                    picture: keyword.userId.picture
+                })
+
             }
+
+            console.log(projects)
         }
         if (projects.length) {
             res.json({ result: true, keywordsList: projects })

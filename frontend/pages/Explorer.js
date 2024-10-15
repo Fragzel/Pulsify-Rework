@@ -265,13 +265,65 @@ function Explorer() {
     }
 
     // Map pour afficher le résultat de la recherche et faire un tri de la note
-    let listProjectSearch = listProject.map((data, i) => { return (<div className={styles.containerPromptCard}><PromptCard key={i} audio={data.audio} isOnExplore={true} projectName={data.title} genre={data.genre} stars={data.rating} prompt={data.prompt} firstname={data.userId.firstname} username={data.userId.username} picture={data.userId.picture} id={data._id} reRender={refresh} /></div>) }) //listProject.map((data, i) => { return <PromptCard /> })
+    let listProjectSearch = listProject.map((data, i) => {
+        return (
+            <div className={styles.containerPromptCard}>
+                <PromptCard
+                    key={i}
+                    audio={data.audio}
+                    isOnExplore={true}
+                    projectName={data.name}
+                    genre={data.genre}
+                    stars={data.rating}
+                    prompt={data.prompt}
+                    firstname={data.firstname}
+                    username={data.username}
+                    picture={data.picture}
+                    id={data._id} reRender={refresh} />
+            </div>)
+    }) //listProject.map((data, i) => { return <PromptCard /> })
 
     if (sortUp) {
-        listProjectSearch = listProject.sort((a, b) => b.rating - a.rating).map((data, i) => { return (<div className={styles.containerPromptCard}><PromptCard key={i} isOnExplore={true} audio={data.audio} projectName={data.title} genre={data.genre} stars={data.rating} prompt={data.prompt} firstname={data.userId.firstname} username={data.userId.username} picture={data.userId.picture} id={data._id} reRender={refresh} /></div>) }) //classé par + liké first
+        listProjectSearch = listProject.sort((a, b) => b.rating - a.rating).map((data, i) => {
+            return (
+                <div className={styles.containerPromptCard}>
+                    <PromptCard
+                        key={i}
+                        isOnExplore={true}
+                        audio={data.audio}
+                        projectName={data.name}
+                        genre={data.genre}
+                        stars={data.rating}
+                        prompt={data.prompt}
+                        firstname={data.userId.firstname}
+                        username={data.userId.username}
+                        picture={data.userId.picture}
+                        id={data._id}
+                        reRender={refresh} />
+                </div>
+            )
+        }) //classé par + liké first
     }
     if (sortDown) {
-        listProjectSearch = listProject.sort((a, b) => a.rating - b.rating).map((data, i) => { return (<div className={styles.containerPromptCard}><PromptCard key={i} isOnExplore={true} audio={data.audio} projectName={data.title} genre={data.genre} stars={data.rating} prompt={data.prompt} firstname={data.userId.firstname} username={data.userId.username} picture={data.userId.picture} id={data._id} reRender={refresh} /></div>) }) //classé par - liké first
+        listProjectSearch = listProject.sort((a, b) => a.rating - b.rating).map((data, i) => {
+            return (
+                <div className={styles.containerPromptCard}>
+                    <PromptCard
+                        key={i}
+                        isOnExplore={true}
+                        audio={data.audio}
+                        projectName={data.name}
+                        genre={data.genre}
+                        stars={data.rating}
+                        prompt={data.prompt}
+                        firstname={data.userId.firstname}
+                        username={data.userId.username}
+                        picture={data.userId.picture}
+                        id={data._id}
+                        reRender={refresh} />
+                </div>
+            )
+        }) //classé par - liké first
     }
 
     // Affichage du message d'erreur en fonction de la recherche, s'adapte à ce qui est retourné par la route
