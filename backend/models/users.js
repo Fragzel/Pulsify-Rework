@@ -15,8 +15,8 @@ const userSchema = mongoose.Schema({
     token: { type: String, required: true },
     likedProjects: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'projects' }], required: false, default: [] },
     picture: { type: String, required: false, default: null },
-    theme: { type: String, requiered: false },
-    language: { type: String, requiered: false },
+    theme: { type: String, required: false },
+    language: { type: String, required: false },
  
 });
 

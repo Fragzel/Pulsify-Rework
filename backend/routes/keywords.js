@@ -4,6 +4,7 @@ require('../models/connection');
 
 const Keyword = require('../models/keywords');
 const User = require('../models/users');
+const Genre = require('../models/genres');
 const { checkBody } = require('../modules/tools')
 
 router.post('/search', async (req, res) => {

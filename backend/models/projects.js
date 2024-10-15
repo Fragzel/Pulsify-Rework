@@ -3,7 +3,7 @@ const express = require('express');
 
 const reportsSchema = mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
-    text: { type: String, requiered: true },
+    text: { type: String, required: true },
     createdAt: { type: Date, default: new Date() },
 });
 
@@ -20,7 +20,7 @@ const projectsSchema = mongoose.Schema({
     reports: [reportsSchema],
     comments: [{
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
-        text: { type: String, requiered: true },
+        text: { type: String, required: true },
         createdAt: { type: Date, default: new Date() },
         reports: [reportsSchema],
     }]

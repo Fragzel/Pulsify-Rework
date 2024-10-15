@@ -4,7 +4,8 @@ require('../models/connection');
 const { checkBody } = require('../modules/tools')
 const Project = require('../models/projects');
 const User = require('../models/users')
-const Keyword = require("../models/keywords")
+const Keyword = require("../models/keywords");
+const Genre = require('../models/genres');
 
 
 router.post("/searchMyGenres", async (req, res) => {
@@ -27,22 +28,27 @@ router.post("/searchMyGenres", async (req, res) => {
         formattedSearch = formattedSearch[0] === "," ? formattedSearch.slice(1) : formattedSearch;
     }
 
+    // Recherche des ids des genres de l'utilisateur correspondant à la recherche
+    const foundGenres = await Genre.find({ userId: foundUser._id, name: { $regex: new RegExp(formattedSearch, 'i') } });
+    const genreIds = foundGenres.map(genre => genre._id);
+
     // Récupération des projets correspondant à l'utilisateur et au critère de recherche
     let projects = await Project.find({
         userId: foundUser._id,
         ...(formattedSearch && {
             $or: [
-                { genre: { $regex: new RegExp(formattedSearch, 'i') } },
+                { genre: { $in: genreIds } },
                 { title: { $regex: new RegExp(formattedSearch, 'i') } }
             ]
         })
-    }).populate('userId', 'firstname picture');
+    }).populate('genre').populate('userId', 'firstname picture');
 
     // Regroupement des projets par genre et récupération des titres des projets
     let genreMap = {};
 
     projects.forEach(project => {
-        const genre = project.genre;
+        console.log(project)
+        const genre = project.genre.name;
         // Cette condition pour éviter les doublons quand on liste les genres
         if (!genreMap[genre]) {
             genreMap[genre] = {
