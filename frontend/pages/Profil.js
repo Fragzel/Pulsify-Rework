@@ -100,7 +100,7 @@ function Profil() {
           isOnFavoritesProjects={false}
           stars={data.rating}
           audio={data.audio}
-          projectName={data.title}
+          projectName={data.name}
           prompt={data.prompt}
           id={data._id}
           genre={data.genre}
@@ -123,7 +123,7 @@ function Profil() {
           isOnMyProjects={false}
           stars={data.rating}
           audio={data.audio}
-          projectName={data.title}
+          projectName={data.name}
           prompt={data.prompt}
           id={data._id}
           genre={data.genre}

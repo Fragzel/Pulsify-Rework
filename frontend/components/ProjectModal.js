@@ -40,6 +40,7 @@ function ProjectModal(props) {
             });
 
             const responseDataPrompt = await saveDataForPrompt.json();
+            console.log(responseDataPrompt)
 
 
             if (responseDataPrompt.result) {

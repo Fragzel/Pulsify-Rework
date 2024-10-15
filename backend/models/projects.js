@@ -3,9 +3,9 @@ const express = require('express');
 
 const reportsSchema = mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
-    text : {type: String, requiered : true },
+    text: { type: String, requiered: true },
     createdAt: { type: Date, default: new Date() },
-   });
+});
 
 const projectsSchema = mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: false },
@@ -18,12 +18,12 @@ const projectsSchema = mongoose.Schema({
     rating: { type: Number, required: false },
     isPublic: { type: Boolean, required: true },
     theme: { type: String, required: false },
-    reports : [reportsSchema],
-    comments : [{
+    reports: [reportsSchema],
+    comments: [{
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
-        text : {type: String, requiered : true },
+        text: { type: String, requiered: true },
         createdAt: { type: Date, default: new Date() },
-        reports : [reportsSchema],
+        reports: [reportsSchema],
     }]
 });
 

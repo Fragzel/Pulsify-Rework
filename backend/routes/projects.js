@@ -17,7 +17,7 @@ const upload = multer({ storage: storage });
 router.post("/add", async (req, res) => {
 
     // Vérification des éléments requis pour la route
-    if (!checkBody(req.body, ['genre', 'prompt', 'email', "username", "rating", "title"])) {
+    if (!checkBody(req.body, ['genre', 'prompt', 'email', "username", "rating", "name"])) {
         res.json({ result: false, error: 'Champs manquants ou vides' });
         return;
     }
@@ -115,7 +115,7 @@ router.post("/add", async (req, res) => {
     if (existingKeywordIds.length) {
         for (const id of existingKeywordIds) {
             // const keyword = await Keyword.findById(id);
-            const keyword = await Keyword.findById(id).populate('prompts');
+            const keyword = await Keyword.findById(id);
             const kewordIdsToAdd = [];
             for (let i = 0; i < newKeywordIds.length; i++) {
                 if (!keyword.relatedKeywords.some(e => String(e) === String(newKeywordIds[i]))) {
@@ -258,7 +258,7 @@ router.post('/signalementProject', async (req, res) => {
             const projectId = req.body.idPrompt;
             const project = await Project.findByIdAndUpdate(
                 projectId,
-                { $push: {reports : {  userId: foundUser._id, text: req.body.text } } }
+                { $push: { reports: { userId: foundUser._id, text: req.body.text } } }
             );
             if (!project) {
                 return res.json({ result: false, error: 'Aucun projet correspondant à mettre à jour' });
@@ -281,20 +281,20 @@ router.post('/signalementComment', async (req, res) => {
     // Authentification de l'utilisateur
     const foundUser = await User.findOne({ email: req.body.email, token: req.body.token });
     !foundUser && res.json({ result: false, error: 'Access denied' });
-  
-        try {
-            const project = await Project.findByIdAndUpdate(
-                req.body.idPrompt,
-                { $push: { comments : {reports : {  userId: foundUser._id, text: req.body.text } } } }
-            );
-            if (!project) {
-                return res.json({ result: false, error: 'Aucun projet correspondant à mettre à jour' });
-            }
-            res.json({ result: true });
-        } catch (error) {
-            res.json({ result: error });
+
+    try {
+        const project = await Project.findByIdAndUpdate(
+            req.body.idPrompt,
+            { $push: { comments: { reports: { userId: foundUser._id, text: req.body.text } } } }
+        );
+        if (!project) {
+            return res.json({ result: false, error: 'Aucun projet correspondant à mettre à jour' });
         }
-       
+        res.json({ result: true });
+    } catch (error) {
+        res.json({ result: error });
+    }
+
 });
 
 
@@ -338,7 +338,7 @@ router.post('/comment', async (req, res) => {
         req.body.id,
         { $push: { comments: newComment } }
     );
-    
+
     if (projectToComment) {
         res.json({
             result: true,
@@ -366,10 +366,10 @@ router.delete('/comment', async (req, res) => {
     !foundUser && res.json({ result: false, error: 'Access denied' });
 
     const { projectId, commentId, userId } = req.body;
-    
+
     const project = await Project.findByIdAndUpdate(
         projectId,
-        { $pull: { comments: {_id : commentId}}},
+        { $pull: { comments: { _id: commentId } } },
         { new: true }
     )
     if (project) {
