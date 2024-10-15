@@ -266,7 +266,7 @@ router.post("/getLikeNumberAndCommentsNumber", async (req, res) => {
   }
 
   const foundProject = await Project.findById(req.body.id)
-  foundProject && (commentNumber = foundProject.messages.length)
+  foundProject && (commentNumber = foundProject.comments.length)
 
   res.json({ result: true, likeNumber: likeNumber, commentNumber: commentNumber })
 })

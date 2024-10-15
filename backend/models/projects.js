@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const express = require('express');
 
 const reportsSchema = mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
@@ -9,7 +10,7 @@ const reportsSchema = mongoose.Schema({
 const projectsSchema = mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: false },
     keywords: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'keywords' }], required: false },// a virer
-    title: { type: String, required: true }, // a changer en name 
+    name: { type: String, required: true },
     createdAt: { type: Date, default: new Date() },
     prompt: { type: String, required: true },
     genre: { type: String, required: true },  // a virer 
@@ -30,3 +31,4 @@ const projectsSchema = mongoose.Schema({
 const Project = mongoose.model('projects', projectsSchema);
 
 module.exports = Project;
+

@@ -30,7 +30,7 @@ function ProjectModal(props) {
                 username: user.username,
                 email: user.email,
                 token: user.token,
-                title: props.projectTitle,
+                name: props.projectTitle,
             };
             // Envoyer les data du prompt sans l'audio
             const saveDataForPrompt = await fetch(`${siteUrl}/projects/add`, {

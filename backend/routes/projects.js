@@ -38,7 +38,7 @@ router.post("/add", async (req, res) => {
         username: req.body.username,
         email: req.body.email,
         userId: foundUser._id,
-        name: req.body.title
+        name: req.body.name
     });
 
     const savedProject = await newProject.save();
@@ -311,8 +311,7 @@ router.post("/projectById", async (req, res) => {
     const foundUser = await User.findOne({ email: req.body.email, token: req.body.token });
     !foundUser && res.json({ result: false, error: 'Access denied' });
 
-    const project = await Project.findById(req.body.id);
-
+    const project = await Project.findById(req.body.id).populate("userId", 'firstname username picture').populate('comments.userId', 'firstname username picture')
     if (!project) {
         return res.json({ result: false, message: "project non trouvé" });
     } else {

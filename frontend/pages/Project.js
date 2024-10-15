@@ -91,7 +91,7 @@ function Project() {
                 pourcentage = pourcentage.toPrecision(3)
             }
             return (
-                <div className={styles.suggestionItem} onClick={() => addGenreFromSearchBar(data.keyword)}>
+                <div className={styles.suggestionItem} onClick={() => addGenreFromSearchBar(data.name)}>
                     <div className={styles.suggestionItemLeft}>
                         <div key={i} >{data.name}</div>
                     </div>

@@ -26,7 +26,7 @@ function ProjectComments() {
         router.back();
     };
 
-    // Renvoie sur la page projet avec le modèle sélectionner
+    // Renvoie sur la page projet avec le modèle sélectionné
     const handleUse = () => {
         const { title, genre, prompt } = projectInfo;
         router.push({
@@ -44,14 +44,12 @@ function ProjectComments() {
             body: JSON.stringify({ id, comment, email, token }),
         })
         const res = await postCommentInBD.json()
-        console.log('res :', res)
         if (res.result) {
-            console.log('comment :', comment)
             setCommentsList([...commentsList, res.newComment])
             fetchProjectData(id)
             setComment('')
         } else {
-            console.log('Error:', res.message);
+            console.error('Error:', res.message);
         }
     }
 
@@ -75,9 +73,9 @@ function ProjectComments() {
         const res = await fetchData.json()
 
         setProjectInfo(res.info)
-        setCommentsList(res.info.messages)
+        setCommentsList(res.info.comments)
     }
-
+console.log(projectInfo)
     // Props qui permet de rafraichir la page lors de la suppression d'un commentaire dans le composant "MessageCArd"
     const refresh = () => {
         fetchProjectData(id)
@@ -95,7 +93,7 @@ function ProjectComments() {
     let projet
     let comments
 
-
+console.log("projectinfo",projectInfo)
     if (projectInfo._id) {
         projet = <PromptCard id={id}
             username={projectInfo.userId.username}
@@ -114,7 +112,7 @@ function ProjectComments() {
         // Display l'intégralité des commentaires qui lui sont attribué en sous doc
         comments = commentsList.map((data, i) => {
             return (
-                < MessageCard key={i} comment={data.comment} userId={data.userId} idProject={id}
+                < MessageCard key={i} comment={data.text} userId={data.userId} idProject={id}
                     refresh={refresh}
                     answerHandler={answerHandler}
                 />
