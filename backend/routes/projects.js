@@ -30,7 +30,7 @@ router.post("/add", async (req, res) => {
     const formattedPrompt = trimmedPrompt[trimmedPrompt.length - 1] === "," ? trimmedPrompt.slice(0, -1) : trimmedPrompt;
 
     const newProject = new Project({
-        genre: req.body.genre,
+        genre: req.body.genre, // a mettre dans la collec genres 
         prompt: formattedPrompt,
         audio: "",
         rating: req.body.rating,
@@ -38,7 +38,7 @@ router.post("/add", async (req, res) => {
         username: req.body.username,
         email: req.body.email,
         userId: foundUser._id,
-        title: req.body.title
+        name: req.body.title
     });
 
     const savedProject = await newProject.save();
@@ -258,20 +258,12 @@ router.post('/signalementProject', async (req, res) => {
             const projectId = req.body.idPrompt;
             const project = await Project.findByIdAndUpdate(
                 projectId,
-                { $inc: { nbSignalements: 1 } },    // Incrémentation du nombre de signalements
-
+                { $push: {reports : {  userId: foundUser._id, text: req.body.text } } }
             );
             if (!project) {
                 return res.json({ result: false, error: 'Aucun projet correspondant à mettre à jour' });
             }
-            // Enregistrer le nouveau signalement 
-            const newSignalement = new Signalement({
-                userId: foundProject.userId,
-                text: req.body.text,
-                prompt: req.body.idPrompt,
-            })
-            const savedSignalement = await newSignalement.save();
-            res.json({ result: true, msg: savedSignalement });
+            res.json({ result: true });
         } catch (error) {
             res.json({ result: error });
         }
@@ -289,48 +281,41 @@ router.post('/signalementComment', async (req, res) => {
     // Authentification de l'utilisateur
     const foundUser = await User.findOne({ email: req.body.email, token: req.body.token });
     !foundUser && res.json({ result: false, error: 'Access denied' });
-
-    const { userId, comment, idProject, text } = req.body;
-    try {
-        // Trouve le projet par ID et par cible le commentaire
-        const project = await Project.findOneAndUpdate(
-            { _id: idProject, "messages.comment": comment },
-            // Incrémentation de nbSignalements de 1 dans tableau messages
-            {
-                $inc: { "messages.$.nbSignalements": 1 }
-            },
-        );
-        // Enregistrer le nouveau signalement 
-        const newSignalementComment = new Signalement({
-            userId: userId._id,
-            text: text,
-            message: {
-                projectId: idProject,
-                comment: {
-                    comment: comment,
-                    userId: userId
-                }
-            },
-        });
-        const savedSignalement = await newSignalementComment.save();
-
-        res.json({ result: true, msg: 'Signalement mis à jour', savedSignalement });
-    } catch (error) {
-        res.json({ result: false, error: error.message });
-    }
+  
+        try {
+            const project = await Project.findByIdAndUpdate(
+                req.body.idPrompt,
+                { $push: { comments : {reports : {  userId: foundUser._id, text: req.body.text } } } }
+            );
+            if (!project) {
+                return res.json({ result: false, error: 'Aucun projet correspondant à mettre à jour' });
+            }
+            res.json({ result: true });
+        } catch (error) {
+            res.json({ result: error });
+        }
+       
 });
 
 
 
-// Récupération d'un projet par son ID
+// Récupération d'un projet par son ID pour l'afficher sur la page commentaires
 router.post("/projectById", async (req, res) => {
-    const projectId = req.body.id;
-    const project = await Project.findById(projectId).populate('userId keywords messages.userId');
+
+    // Vérification des éléments requis pour la route
+    if (!checkBody(req.body, ['id', 'email', "token"])) {
+        res.json({ result: false, error: 'Champs manquants ou vides' });
+        return;
+    }
+    // Authentification de l'utilisateur
+    const foundUser = await User.findOne({ email: req.body.email, token: req.body.token });
+    !foundUser && res.json({ result: false, error: 'Access denied' });
+
+    const project = await Project.findById(req.body.id);
 
     if (!project) {
         return res.json({ result: false, message: "project non trouvé" });
     } else {
-
         return res.json({ result: true, info: project })
     }
 });
@@ -349,53 +334,50 @@ router.post('/comment', async (req, res) => {
     !foundUser && res.json({ result: false, error: 'Access denied' });
 
     // Ajout d'un commentaire au projet existant
-    const newComment = { comment: req.body.comment, userId: foundUser._id, createdAt: new Date(), nbSignalements: 0 };
+    const newComment = { text: req.body.comment, userId: foundUser._id };
     const projectToComment = await Project.findByIdAndUpdate(
         req.body.id,
-        { $push: { messages: newComment } },
-
+        { $push: { comments: newComment } }
     );
+    
     if (projectToComment) {
         res.json({
             result: true,
-            message: 'Comment successfully added',
             newComment: {
                 comment: req.body.comment,
                 userId: foundUser._id,
             },
         });
     } else {
-        res.json({ result: false, message: 'project not found' });
+        res.json({ result: false, message: 'Project not found' });
     }
 });
 
 
 // Supprimer un commentaire et les signalements attribués
 router.delete('/comment', async (req, res) => {
-    const { projectId, comment, userId } = req.body;
-    console.log('projectId, commentId, userId', projectId, comment, userId)
+
+    // Vérification des éléments requis pour la route
+    if (!checkBody(req.body, ['userId', 'email', "token", 'commentId', 'projectId'])) {
+        res.json({ result: false, error: 'Champs manquants ou vides' });
+        return;
+    }
+    // Authentification de l'utilisateur
+    const foundUser = await User.findOne({ email: req.body.email, token: req.body.token, _id: userId });
+    !foundUser && res.json({ result: false, error: 'Access denied' });
+
+    const { projectId, commentId, userId } = req.body;
+    
     const project = await Project.findByIdAndUpdate(
         projectId,
-        { $pull: { messages: { comment: comment, userId: userId } } },
+        { $pull: { comments: {_id : commentId}}},
         { new: true }
     )
     if (project) {
-        await Signalement.deleteMany({
-            "message.projectId": projectId,
-            "message.comment.comment": comment,
-            "message.comment.userId": userId
-        })
         res.json({ result: true, message: 'Comment successfully deleted', project });
     } else {
-        res.json({ result: false, message: 'Project not found' });
+        res.json({ result: false, message: 'Comment not found' });
     }
 })
-
-
-
-
-
-
-
 
 module.exports = router;

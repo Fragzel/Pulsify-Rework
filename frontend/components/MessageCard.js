@@ -33,7 +33,7 @@ function MessageCard(props) {
             },
             body: JSON.stringify({
                 projectId: props.idProject,
-                comment: props.comment,
+                commentId: props.comments._id,
                 userId: props.userId._id
             }),
         });
