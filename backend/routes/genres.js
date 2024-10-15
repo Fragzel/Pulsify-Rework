@@ -161,17 +161,33 @@ router.post('/searchGenre', async (req, res) => {
     if (!foundUser) { return res.json({ result: false, error: 'Access denied' }) };
 
     // Recherche par genre en ignorant la casse
-    const foundGenreId = await Genre.findOne({ name: { $regex: new RegExp(req.body.genre, "i") } })._id
-    const fetchedProjects = await Project.find({ genre: foundGenreId })
+    const foundGenre = await Genre.findOne({ name: { $regex: new RegExp(req.body.genre, "i") } })
+    const fetchedProjects = await Project.find({ genre: foundGenre ? foundGenre._id : null })
 
     if (fetchedProjects.length) {
-        const projects = []
-        for (const project of fetchedProjects) {
-            const userData = await project.populate('userId')
-            userData.isPublic && projects.push(userData)
-        }
-        res.json(projects.length ? { result: true, promptsList: projects } : { result: false, error: 'Genre existant mais non public' });
-
+        
+    const projects = []
+    const populatedProjects = await Project.find({ genre: foundGenre }).populate({
+        path: 'userId',
+        select: 'firstname picture username'
+    }).populate({
+        path: 'genre',
+        select: 'name'
+    });
+    
+    for (const project of populatedProjects) {
+        project.isPublic && projects.push({  
+            audio: project.audio,
+            genre: project.genre.name,
+            name: project.name,
+            prompt: project.prompt,
+            rating: project.rating,
+            firstname: project.userId.firstname,
+            username: project.userId.username,
+            picture: project.userId.picture
+        })
+    }
+    res.json(projects.length ? { result: true, promptsList: projects } : { result: false, error: 'Genre existant mais non public' });
     } else {
         res.json({ result: false, error: 'Genre non existant' })
     }
@@ -190,17 +206,9 @@ router.post('/allGenres', async (req, res) => {
     if (!foundUser) { return res.json({ result: false, error: 'Access denied' }) };
 
     // Récupération de tous les genres
-    const foundAllProject = await Project.find()
-    if (foundAllProject.length) {
-        allGenres = []
-        for (const project of foundAllProject) {
-            if (!allGenres.some(e => e === project.genre) && project.isPublic)
-                allGenres.push(project.genre)
-        }
-        res.json({ result: true, allGenres: allGenres })
-    } else {
-        res.json({ result: false })
-    }
+    const foundAllGenres = await Genre.find()
+    const genreNames = foundAllGenres.map(genre => genre.name)  
+    res.json(foundAllGenres ? { result: true, allGenres: genreNames } : { result: false, error: 'No genres found' })
 })
 
 

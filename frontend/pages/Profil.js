@@ -67,6 +67,7 @@ function Profil() {
           } else {
             setMyPrompts(data.myPrompts)
             setCommunityList(data.likedProjects)
+            console.log("data", data)
           }
 
         });
@@ -113,19 +114,19 @@ function Profil() {
       <div className={styles.promptCard}>
         <PromptCard
           key={i}
-          firstname={data.userId.firstname}
-          username={data.userId.username}
-          picture={data.userId.picture}
+          firstname={data.projectInfos.firstname}
+          username={data.projectInfos.username}
+          picture={data.projectInfos.picture}
           isOnProfile={false}
           isOnFavoritesProjects={true}
           isOnMyProjects={false}
-          stars={data.rating}
-          audio={data.audio}
-          projectName={data.name}
-          prompt={data.prompt}
-          id={data._id}
-          genre={data.genre}
-          onRemove={() => handleUpdate(data._id)}
+          stars={data.projectInfos.rating}
+          audio={data.projectInfos.audio}
+          projectName={data.projectInfos.name}
+          prompt={data.projectInfos.prompt}
+          id={data.projectInfos._id}
+          genre={data.projectInfos.genre}
+          onRemove={() => handleUpdate(data.projectInfos._id)}
           reRender={refresh} />
       </div>)
   }).reverse()

@@ -21,11 +21,11 @@ router.post('/search', async (req, res) => {
         const projects = []
 
         for (const keyword of keywordList) {
-            const foundProject = await Project.find({ userId: keyword.userId._id })
+            const foundProject = await Project.find({ userId: keyword.userId._id }).populate("genre")
             for (const project of foundProject) {
                 projects.push({
                     audio: project.audio,
-                    genre: project.genre,
+                    genre: project.genre.name,
                     name: project.name,
                     prompt: project.prompt,
                     rating: project.rating,

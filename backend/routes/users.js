@@ -161,15 +161,34 @@ router.post('/projets', async (req, res) => {
 
   if(!foundProjects){res.json({result: false, message : "no projects"})}
   
-  const likedProjects = await foundUser.populate('likedProjects', 'genre')
+    const populatedUser = await foundUser.populate({
+      path: 'likedProjects',
+      select: 'name audio prompt rating userId genre',
+      populate: [
+        {
+          path: 'userId',
+          select: 'firstname picture username'
+        },
+        {
+          path: 'genre',
+          select: 'name'
+        }
+      ]
+    });
+    
+
   let projectInfo = [];
-  for (const id of likedProjects.likedProjects) {
-    projectInfo.push({author : await id.populate('userId', 'firstname picture username'), projectInfos : {
-      audio: id.audio,
-      genre: id.genre.name,
-      name: id.name,
-      prompt: id.prompt,
-      rating: id.rating,
+  for (const project of populatedUser.likedProjects) {
+
+    projectInfo.push({projectInfos : {
+      audio: project.audio,
+      genre: project.genre.name,
+      name: project.name,
+      prompt: project.prompt,
+      rating: project.rating,
+      firstname: project.userId.firstname,
+      username: project.userId.username,
+      picture: project.userId.picture
     }})
   }
 
