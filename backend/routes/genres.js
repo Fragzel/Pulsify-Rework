@@ -6,7 +6,6 @@ const Project = require('../models/projects');
 const Genre = require('../models/genres');
 const User = require('../models/users')
 const Keyword = require("../models/keywords");
-const Genre = require('../models/genres');
 
 
 router.post("/searchMyGenres", async (req, res) => {
