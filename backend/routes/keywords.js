@@ -14,38 +14,36 @@ router.post('/search', async (req, res) => {
         res.json({ result: false, error: 'Champs vides ou manquants' });
         return;
     }
-    const keywordList = await Keyword.find({ name: { $regex: new RegExp(req.body.keyword, "i") } })
-        .populate('userId', 'firstname picture username');
 
-    if (keywordList.length) {
-        const projects = []
+    const formattedRegex = new RegExp(req.body.keyword, "i");
 
-        for (const keyword of keywordList) {
-            const foundProject = await Project.find({ userId: keyword.userId._id }).populate("genre")
-            for (const project of foundProject) {
-                projects.push({
-                    audio: project.audio,
-                    genre: project.genre.name,
-                    name: project.name,
-                    prompt: project.prompt,
-                    rating: project.rating,
-                    firstname: keyword.userId.firstname,
-                    username: keyword.userId.username,
-                    picture: keyword.userId.picture
-                })
 
-            }
 
-            console.log(projects)
-        }
+        const foundProjects = await Project.find({ prompt: formattedRegex }).populate("genre")
+
+
+
+        foundProjects.forEach((project, i) => String(project._id) != String(foundProjects[i]._id) &&
+            projects.push({
+                _id: project._id,
+                audio: project.audio,
+                genre: project.genre.name,
+                name: project.name,
+                prompt: project.prompt,
+                rating: project.rating,
+                firstname: keyword.userId.firstname,
+                username: keyword.userId.username,
+                picture: keyword.userId.picture
+            })
+        )
+        
+        
         if (projects.length) {
             res.json({ result: true, keywordsList: projects })
         } else {
             res.json({ result: false, error: 'Mot clé existant mais projet associé non public' })
         }
-    } else {
-        res.json({ result: false, error: 'Mot clé non utilisé' })
-    }
+
 
 
 });
