@@ -266,7 +266,6 @@ function Explorer() {
 
     // Map pour afficher le résultat de la recherche et faire un tri de la note
     let listProjectSearch = listProject.map((data, i) => {
-        console.log(data)
         return (
             <div className={styles.containerPromptCard}>
                 <PromptCard

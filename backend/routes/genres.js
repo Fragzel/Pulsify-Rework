@@ -177,6 +177,7 @@ router.post('/searchGenre', async (req, res) => {
     
     for (const project of populatedProjects) {
         project.isPublic && projects.push({  
+            _id: project._id,
             audio: project.audio,
             genre: project.genre.name,
             name: project.name,
