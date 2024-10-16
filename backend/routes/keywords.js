@@ -19,21 +19,22 @@ router.post('/search', async (req, res) => {
 
 
 
-        const foundProjects = await Project.find({ prompt: formattedRegex }).populate("genre")
+        const foundProjects = await Project.find({ prompt: formattedRegex }).populate("genre" , "name").populate("userId", "firstname username picture")
 
+        listIds = foundProjects.map(project => project._id)
 
-
-        foundProjects.forEach((project, i) => String(project._id) != String(foundProjects[i]._id) &&
-            projects.push({
+        let projects = foundProjects.map((project) => 
+            listIds.includes(project._id) &&
+            ({
                 _id: project._id,
                 audio: project.audio,
                 genre: project.genre.name,
                 name: project.name,
                 prompt: project.prompt,
                 rating: project.rating,
-                firstname: keyword.userId.firstname,
-                username: keyword.userId.username,
-                picture: keyword.userId.picture
+                firstname: project.userId.firstname,
+                username: project.userId.username,
+                picture: project.userId.picture
             })
         )
         
