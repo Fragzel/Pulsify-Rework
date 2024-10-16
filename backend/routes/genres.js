@@ -59,7 +59,7 @@ router.post("/searchMyGenres", async (req, res) => {
         }
 
         // Ajouter le titre du projet à la liste des titres pour ce genre
-        genreMap[genre].titles.push(project.title);
+        genreMap[genre].titles.push(project.name);
     });
 
     // Conversion de genreMap en tableau
@@ -112,13 +112,13 @@ router.post("/searchLikedGenres", async (req, res) => {
                 { title: { $regex: new RegExp(formattedSearch, 'i') } }
             ]
         })
-    }).populate('userId', 'firstname picture username');
+    }).populate('userId', 'firstname picture username').populate('genre');
 
     // Regroupement des projets par genre et récupération des titres des projets
     let genreMap = {};
 
     likedProjects.forEach(project => {
-        const genre = project.genre;
+        const genre = project.genre.name;
         if (!genreMap[genre]) {
             genreMap[genre] = {
                 genre: genre,
@@ -128,7 +128,7 @@ router.post("/searchLikedGenres", async (req, res) => {
         }
 
         // Ajouter le titre du projet à la liste des titres pour ce genre
-        genreMap[genre].titles.push(project.title);
+        genreMap[genre].titles.push(project.name);
     });
 
     // Conversion de genreMap en tableau
