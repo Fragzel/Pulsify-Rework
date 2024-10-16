@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleExclamation, faTrash } from '@fortawesome/free-solid-svg-icons';
-import SignalementModal from './SignalementModal';
+import ReportModal from './ReportModal';
 import UserCard from './UserCard'
 
 
@@ -13,11 +13,11 @@ function MessageCard(props) {
     const user = useSelector((state) => state.user.value)
     const [modalIsOpen, setIsOpen] = useState(false);
 
-    // Ouvre et ferme la modale de signalement
-    const openSignalementModal = () => {
+    // Ouvre et ferme la modale de report
+    const openReportModal = () => {
         setIsOpen(true)
     }
-    const closeSignalementModal = () => {
+    const closeReportModal = () => {
         setIsOpen(false)
     }
 
@@ -57,13 +57,13 @@ function MessageCard(props) {
                 {props.comment}
             </div>
             <div className={styles.iconContainer}>
-                <FontAwesomeIcon icon={faCircleExclamation} onClick={() => openSignalementModal()} className={styles.icon} />
+                <FontAwesomeIcon icon={faCircleExclamation} onClick={() => openReportModal()} className={styles.icon} />
                 {isCommentPoster && (
                     <FontAwesomeIcon icon={faTrash} className={styles.icon} onClick={() => removeComment()} />
                 )}
             </div>
-            <SignalementModal isOpen={modalIsOpen}
-                onRequestClose={closeSignalementModal}
+            <ReportModal isOpen={modalIsOpen}
+                onRequestClose={closeReportModal}
                 userId={props.userId}
                 comment={props.comment}
                 idProject={props.idProject}

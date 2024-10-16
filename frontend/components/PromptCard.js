@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import UserCard from './UserCard';
 import { setLikedList } from '../reducers/user';
-import SignalementModal from './SignalementModal';
+import ReportModal from './ReportModal';
 
 
 function PromptCard(props) {
@@ -23,10 +23,10 @@ function PromptCard(props) {
     const user = useSelector((state) => state.user.value)
 
     // Ouvrir la modal Project au click sur "Enregistrer" 
-    const openSignalementModal = () => {
+    const openReportModal = () => {
         setIsOpen(true)
     }
-    const closeSignalementModal = () => {
+    const closeReportModal = () => {
         setIsOpen(false);
     }
 
@@ -122,10 +122,10 @@ function PromptCard(props) {
                         onClick={commentClick} />
                     {commentNumber}</div>}
             {!props.isOnMyProjects ? (<FontAwesomeIcon icon={faCircleExclamation}
-                onClick={() => openSignalementModal()}
+                onClick={() => openReportModal()}
                 className={styles.icon} />) : <> </>}
-            <SignalementModal isOpen={modalIsOpen}
-                onRequestClose={closeSignalementModal}
+            <ReportModal isOpen={modalIsOpen}
+                onRequestClose={closeReportModal}
                 id={props.id}
             />
         </>

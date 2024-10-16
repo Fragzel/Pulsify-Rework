@@ -107,13 +107,13 @@
     width: 90%;
 }
 
-.signalementIcon {
+.reportIcon {
     color: white;
     cursor: pointer;
     transition: color 0.3s ease;
 }
 
-.signalementIcon:hover {
+.reportIcon:hover {
     color: #B300F2;
 }
 
