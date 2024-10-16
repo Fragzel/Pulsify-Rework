@@ -56,7 +56,6 @@ function ProjectComments() {
     useEffect(() => {
         if (id) {
             fetchProjectData(id)
-            console.log('Project ID:', id);
         }
     }, [id]);
 
@@ -74,7 +73,6 @@ function ProjectComments() {
         setProjectInfo(res.info)
         setCommentsList(res.info.comments)
     }
-    console.log(projectInfo)
     // Props qui permet de rafraichir la page lors de la suppression d'un commentaire dans le composant "MessageCArd"
     const refresh = () => {
         fetchProjectData(id)
@@ -92,7 +90,6 @@ function ProjectComments() {
     let projet
     let comments
 
-    console.log("projectinfo", projectInfo)
     if (projectInfo._id) {
         projet = <PromptCard id={id}
             username={projectInfo.userId.username}

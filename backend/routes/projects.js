@@ -210,7 +210,6 @@ router.delete("/prompt", async (req, res) => {
             if (deletedDoc.deletedCount > 0) {
                 await User.updateOne({ email: req.body.email }, { $pull: { prompts: req.body.id } });
                 await Keyword.updateMany({ userId: foundUser._id }, { $pull: { prompts: req.body.id } });
-                await Signalement.deleteMany({ prompt: req.body.id });
                 res.json({ result: true });
             } else {
                 res.json({ result: false });
@@ -294,7 +293,6 @@ router.post("/projectById", async (req, res) => {
 
     const project = await Project.findById(req.body.id).populate("userId", 'firstname username picture').populate('comments.userId', 'firstname username picture')
 
-    console.log("project", project)
     if (!project) {
         return res.json({ result: false, message: "project non trouvé" });
     } else {

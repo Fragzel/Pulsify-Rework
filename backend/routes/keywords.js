@@ -36,7 +36,6 @@ router.post('/search', async (req, res) => {
 
             }
 
-            console.log(projects)
         }
         if (projects.length) {
             res.json({ result: true, keywordsList: projects })
