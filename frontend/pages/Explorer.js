@@ -210,7 +210,7 @@ function Explorer() {
         })
         const res = await fetchProject.json()
         if (res.result) {
-            setListProject(res.promptsList)
+            setListProject(res.projectList)
             setErrorSearch(false)
         } else {
             setErrorSearch(true)

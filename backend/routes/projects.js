@@ -170,25 +170,34 @@ router.post('/searchTitle', async (req, res) => {
 
     // Authentification de l'utilisateur
     const foundUser = await User.findOne({ email: req.body.email, token: req.body.token });
-    !foundUser && res.json({ result: false, error: 'Access denied' });
+    if (!foundUser) {
+        res.json({ result: false, error: 'Access denied' });
+        return;
+    }
 
     // Recherche par titre en ignorant la casse
-    const projects = await Project.find({ title: { $regex: new RegExp(req.body.title, "i") } });
-    if (projects.length) {
-        const prompts = []
-        for (const populateUserId of projects) {
-            const userIdPopulatedInPrompt = await populateUserId.populate('userId');
-            userIdPopulatedInPrompt.isPublic && prompts.push(userIdPopulatedInPrompt);
-        }
-        if (prompts.length) {
-            res.json({ result: true, promptsList: prompts });
-        } else {
-            res.json({ result: false, error: 'Projet existant mais non public' });
-        }
+    const foundProjects = await Project.find({ name: { $regex: new RegExp(req.body.title, "i") } })
+        .populate("genre", "name")
+        .populate("userId", "firstname username picture");
+
+    if (foundProjects.length) {
+        const projectList = foundProjects.map(project => ({
+            _id: project._id,
+            audio: project.audio,
+            genre: project.genre.name,
+            name: project.name,
+            prompt: project.prompt,
+            rating: project.rating,
+            firstname: project.userId.firstname,
+            username: project.userId.username,
+            picture: project.userId.picture
+        }));
+
+        res.json({ result: true, projectList: projectList });
     } else {
         res.json({ result: false, error: 'Projet non existant' });
     }
-})
+});
 
 
 // Suppression d'un prompt
