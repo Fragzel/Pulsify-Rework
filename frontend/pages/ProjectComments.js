@@ -17,7 +17,6 @@ function ProjectComments() {
     const router = useRouter();
     const { id } = router.query;
 
-
     !user.token && router.push({ pathname: '/' });
 
 
@@ -75,7 +74,7 @@ function ProjectComments() {
         setProjectInfo(res.info)
         setCommentsList(res.info.comments)
     }
-console.log(projectInfo)
+    console.log(projectInfo)
     // Props qui permet de rafraichir la page lors de la suppression d'un commentaire dans le composant "MessageCArd"
     const refresh = () => {
         fetchProjectData(id)
@@ -93,7 +92,7 @@ console.log(projectInfo)
     let projet
     let comments
 
-console.log("projectinfo",projectInfo)
+    console.log("projectinfo", projectInfo)
     if (projectInfo._id) {
         projet = <PromptCard id={id}
             username={projectInfo.userId.username}

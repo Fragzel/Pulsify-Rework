@@ -165,29 +165,29 @@ router.post('/searchGenre', async (req, res) => {
     const fetchedProjects = await Project.find({ genre: foundGenre ? foundGenre._id : null })
 
     if (fetchedProjects.length) {
-        
-    const projects = []
-    const populatedProjects = await Project.find({ genre: foundGenre }).populate({
-        path: 'userId',
-        select: 'firstname picture username'
-    }).populate({
-        path: 'genre',
-        select: 'name'
-    });
-    
-    for (const project of populatedProjects) {
-        project.isPublic && projects.push({  
-            audio: project.audio,
-            genre: project.genre.name,
-            name: project.name,
-            prompt: project.prompt,
-            rating: project.rating,
-            firstname: project.userId.firstname,
-            username: project.userId.username,
-            picture: project.userId.picture
-        })
-    }
-    res.json(projects.length ? { result: true, promptsList: projects } : { result: false, error: 'Genre existant mais non public' });
+
+        const projects = []
+        const populatedProjects = await Project.find({ genre: foundGenre }).populate({
+            path: 'userId',
+            select: 'firstname picture username'
+        }).populate({
+            path: 'genre',
+            select: 'name'
+        });
+
+        for (const project of populatedProjects) {
+            project.isPublic && projects.push({
+                audio: project.audio,
+                genre: project.genre.name,
+                name: project.name,
+                prompt: project.prompt,
+                rating: project.rating,
+                firstname: project.userId.firstname,
+                username: project.userId.username,
+                picture: project.userId.picture
+            })
+        }
+        res.json(projects.length ? { result: true, promptsList: projects } : { result: false, error: 'Genre existant mais non public' });
     } else {
         res.json({ result: false, error: 'Genre non existant' })
     }
@@ -207,7 +207,10 @@ router.post('/allGenres', async (req, res) => {
 
     // Récupération de tous les genres
     const foundAllGenres = await Genre.find()
-    const genreNames = foundAllGenres.map(genre => genre.name)  
+    const allGenreNames = foundAllGenres.map(genre => genre.name)
+    const genreNames = [...new Set(allGenreNames)]
+
+
     res.json(foundAllGenres ? { result: true, allGenres: genreNames } : { result: false, error: 'No genres found' })
 })
 

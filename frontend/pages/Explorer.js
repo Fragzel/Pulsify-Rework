@@ -232,7 +232,7 @@ function Explorer() {
             })
             const res = await fetchProject.json()
             if (res.result) {
-               setListProject(res.promptsList)
+                setListProject(res.promptsList)
                 setErrorSearch(false)
             } else {
                 setErrorSearch(true)
@@ -266,7 +266,7 @@ function Explorer() {
 
     // Map pour afficher le résultat de la recherche et faire un tri de la note
     let listProjectSearch = listProject.map((data, i) => {
-        console.log(data)
+        console.log("data", data)
         return (
             <div className={styles.containerPromptCard}>
                 <PromptCard

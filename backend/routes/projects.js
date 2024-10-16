@@ -27,7 +27,7 @@ router.post("/add", async (req, res) => {
 
     let foundGenreId;
     foundGenreId = await Genre.findOne({ name: req.body.genre })._id;
-    if (!foundGenreId){ 
+    if (!foundGenreId) {
         const newGenre = new Genre({ userId: foundUser._id, name: req.body.genre });
         try {
             const savedGenre = await newGenre.save();
@@ -117,14 +117,14 @@ router.post("/add", async (req, res) => {
                 }
             }
             const updateRelatedKeywordId = [...keyword.relatedKeywords, ...kewordIdsToAdd];
-            
+
             let newScore = (keyword.average_rating * keyword.iterations) + savedProject.rating;
-            
+
             await Keyword.updateOne({ _id: id }, {
-                    $inc: { iterations: 1 },
-                    relatedKeywords: updateRelatedKeywordId,
-                    average_rating: newScore / ( keyword.iterations +1 )
-                });
+                $inc: { iterations: 1 },
+                relatedKeywords: updateRelatedKeywordId,
+                average_rating: newScore / (keyword.iterations + 1)
+            });
         }
     }
     res.json({ result: true, prompt: savedProject });
@@ -293,6 +293,8 @@ router.post("/projectById", async (req, res) => {
     !foundUser && res.json({ result: false, error: 'Access denied' });
 
     const project = await Project.findById(req.body.id).populate("userId", 'firstname username picture').populate('comments.userId', 'firstname username picture')
+
+    console.log("project", project)
     if (!project) {
         return res.json({ result: false, message: "project non trouvé" });
     } else {
