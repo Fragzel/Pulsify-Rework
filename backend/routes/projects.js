@@ -229,8 +229,8 @@ router.delete("/prompt", async (req, res) => {
 
 
 
-// Enregistrer un signalement d'un projet
-router.post('/signalementProject', async (req, res) => {
+// Enregistrer un report d'un projet
+router.post('/reportProject', async (req, res) => {
 
     // Vérification des éléments requis pour la route
     if (!checkBody(req.body, ['idPrompt', 'text', 'email', "token"])) {
@@ -259,8 +259,8 @@ router.post('/signalementProject', async (req, res) => {
     }
 });
 
-// Enregistrement un signalement d'un commentaire
-router.post('/signalementComment', async (req, res) => {
+// Enregistrement un report d'un commentaire
+router.post('/reportComment', async (req, res) => {
 
     // Vérification des éléments requis pour la route
     if (!checkBody(req.body, ['idProject', 'text', 'email', "token"])) {
@@ -343,7 +343,7 @@ router.post('/comment', async (req, res) => {
 });
 
 
-// Supprimer un commentaire et les signalements attribués
+// Supprimer un commentaire et les reports attribués
 router.delete('/comment', async (req, res) => {
 
     // Vérification des éléments requis pour la route

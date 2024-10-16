@@ -1,4 +1,4 @@
-import styles from '../styles/Signalement.module.css';
+import styles from '../styles/Report.module.css';
 import React from "react";
 import Modal from 'react-modal';
 
@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux'
 
 
 
-function SignalementModal(props) {
+function ReportModal(props) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
   const [commentaire, setCommentaire] = useState('')
@@ -16,7 +16,7 @@ function SignalementModal(props) {
   const handleValidation = async () => {
     if (props.id) {
       try {
-        const signalement = await fetch(`${siteUrl}/projects/signalementProject`, {
+        const report = await fetch(`${siteUrl}/projects/reportProject`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -28,10 +28,10 @@ function SignalementModal(props) {
             email: user.email
           }),
         });
-        const response = await signalement.json()
+        const response = await report.json()
         props.onRequestClose()
         if (!response.result) {
-          Error('Erreur lors de la validation du signalement');
+          Error('Erreur lors de la validation du report');
         }
       } catch (error) {
         console.error('Erreur:', error);
@@ -40,7 +40,7 @@ function SignalementModal(props) {
 
     if (props.comment) {
       try {
-        const signalement = await fetch(`${siteUrl}/projects/signalementComment`, {
+        const report = await fetch(`${siteUrl}/projects/reportComment`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -54,10 +54,10 @@ function SignalementModal(props) {
             email: user.email
           }),
         });
-        const response = await signalement.json()
+        const response = await report.json()
         props.onRequestClose()
         if (!response.result) {
-          Error('Erreur lors de la validation du signalement');
+          Error('Erreur lors de la validation du report');
         }
       } catch (error) {
         console.error('Erreur:', error);
@@ -78,13 +78,13 @@ function SignalementModal(props) {
       contentLabel="Example Modal">
       <div className={styles.content}>
         <div className={styles.modalTitleContent}>
-          <h1 className={styles.modalTitle}>Signalement</h1>
+          <h1 className={styles.modalTitle}>Report</h1>
         </div>
         <div>
           <p className={styles.text}>Signalez un commentaire innaproprié ou offensant </p>
         </div>
         <div className={styles.promptContainer} >
-          <textarea placeholder="Expliquer votre signalement ici..." className={styles.input} onChange={e => setCommentaire(e.target.value)} value={commentaire}>
+          <textarea placeholder="Expliquer votre report ici..." className={styles.input} onChange={e => setCommentaire(e.target.value)} value={commentaire}>
           </textarea>
         </div>
         <div className={styles.modalBtnContainer}>
@@ -100,4 +100,4 @@ function SignalementModal(props) {
 
 
 
-export default SignalementModal;
+export default ReportModal;
