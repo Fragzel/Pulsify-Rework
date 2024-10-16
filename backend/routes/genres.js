@@ -150,48 +150,46 @@ router.post("/searchLikedGenres", async (req, res) => {
 
 router.post('/searchGenre', async (req, res) => {
 
-    // Authentification de l'utilisateur
+    // Vérification des éléments requis pour la route
     if (!checkBody(req.body, ['genre', 'email', 'token'])) {
-        res.json({ result: false });
+        res.json({ result: false, message: 'Champs manquants ou vides' });
         return;
     }
 
     // Authentification de l'utilisateur
-    const foundUser = await User.findOne({ email: req.body.email, token: req.body.token })
-    if (!foundUser) { return res.json({ result: false, error: 'Access denied' }) };
+    const foundUser = await User.findOne({ email: req.body.email, token: req.body.token });
+    if (!foundUser) {
+        return res.json({ result: false, error: 'Access denied' });
+    }
 
     // Recherche par genre en ignorant la casse
-    const foundGenre = await Genre.findOne({ name: { $regex: new RegExp(req.body.genre, "i") } })
-    const fetchedProjects = await Project.find({ genre: foundGenre ? foundGenre._id : null })
+    const regexGenre = new RegExp(req.body.genre, "i");
 
-    if (fetchedProjects.length) {
-
-        const projects = []
-        const populatedProjects = await Project.find({ genre: foundGenre }).populate({
-            path: 'userId',
-            select: 'firstname picture username'
-        }).populate({
-            path: 'genre',
-            select: 'name'
-        });
-
-        for (const project of populatedProjects) {
-            project.isPublic && projects.push({
-                _id: project._id,
-                audio: project.audio,
-                genre: project.genre.name,
-                name: project.name,
-                prompt: project.prompt,
-                rating: project.rating,
-                firstname: project.userId.firstname,
-                username: project.userId.username,
-                picture: project.userId.picture
-            })
+    let pipeline = [
+        { $match: { name: regexGenre } },
+        { $lookup: { from: 'projects', localField: '_id', foreignField: 'genre', as: 'projects' } },
+        { $unwind: '$projects' },
+        { $match: { 'projects.isPublic': true } },
+        { $lookup: { from: 'users', localField: 'projects.userId', foreignField: '_id', as: 'users' } },
+        { $unwind: '$users' },
+        {
+            $project: {
+                _id: '$projects._id',
+                audio: '$projects.audio',
+                genre: '$name',
+                name: '$projects.name',
+                prompt: '$projects.prompt',
+                rating: '$projects.rating',
+                firstname: '$users.firstname',
+                username: '$users.username',
+                picture: '$users.picture'
+            }
         }
-        res.json(projects.length ? { result: true, promptsList: projects } : { result: false, error: 'Genre existant mais non public' });
-    } else {
-        res.json({ result: false, error: 'Genre non existant' })
-    }
+    ];
+
+    const projects = await Genre.aggregate(pipeline);
+
+    res.json(projects.length ? { result: true, promptsList: projects } : { result: false, error: 'Genre existant mais non public' });
 });
 
 
