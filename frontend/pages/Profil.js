@@ -67,7 +67,6 @@ function Profil() {
           } else {
             setMyPrompts(data.myPrompts)
             setCommunityList(data.likedProjects)
-            console.log("data", data)
           }
 
         });

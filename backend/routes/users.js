@@ -129,10 +129,26 @@ router.post('/search', async (req, res) => {
   if (fetchAllUser.length) {
 
     // Récupérer les projets publics de l'utilisateur
-    const prompts = await Project.find({ userId: { $in: fetchAllUser } }).populate('userId')
 
-    if (prompts.length) {
-      res.json({ result: true, promptsList: prompts });
+    const userProjects = await Project.find({ userId: { $in: fetchAllUser } }).populate('userId', 'firstname picture username').populate('genre', 'name')
+    const projectList = []
+    for (const project of userProjects) {
+      project.isPublic && projectList.push({
+        _id: project._id,
+        audio: project.audio,
+        genre: project.genre.name,
+        name: project.name,
+        prompt: project.prompt,
+        rating: project.rating,
+        firstname: project.userId.firstname,
+        username: project.userId.username,
+        picture: project.userId.picture
+      })
+    }
+
+
+    if (projectList.length) {
+      res.json({ result: true, projectList: projectList });
     } else {
       res.json({ result: false, error: "Cet auteur n'a aucun projet" });
     }
@@ -159,37 +175,39 @@ router.post('/projets', async (req, res) => {
   // Populate
   const foundProjects = await Project.find({ userId: foundUser._id }).populate("genre")
 
-  if(!foundProjects){res.json({result: false, message : "no projects"})}
-  
-    const populatedUser = await foundUser.populate({
-      path: 'likedProjects',
-      select: 'name audio prompt rating userId genre',
-      populate: [
-        {
-          path: 'userId',
-          select: 'firstname picture username'
-        },
-        {
-          path: 'genre',
-          select: 'name'
-        }
-      ]
-    });
-    
+  if (!foundProjects) { res.json({ result: false, message: "no projects" }) }
+
+  const populatedUser = await foundUser.populate({
+    path: 'likedProjects',
+    select: 'name audio prompt rating userId genre',
+    populate: [
+      {
+        path: 'userId',
+        select: 'firstname picture username'
+      },
+      {
+        path: 'genre',
+        select: 'name'
+      }
+    ]
+  });
+
 
   let projectInfo = [];
   for (const project of populatedUser.likedProjects) {
 
-    projectInfo.push({projectInfos : {
-      audio: project.audio,
-      genre: project.genre.name,
-      name: project.name,
-      prompt: project.prompt,
-      rating: project.rating,
-      firstname: project.userId.firstname,
-      username: project.userId.username,
-      picture: project.userId.picture
-    }})
+    projectInfo.push({
+      projectInfos: {
+        audio: project.audio,
+        genre: project.genre.name,
+        name: project.name,
+        prompt: project.prompt,
+        rating: project.rating,
+        firstname: project.userId.firstname,
+        username: project.userId.username,
+        picture: project.userId.picture
+      }
+    })
   }
 
   // Réponse

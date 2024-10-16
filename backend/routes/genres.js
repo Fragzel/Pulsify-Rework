@@ -47,7 +47,7 @@ router.post("/searchMyGenres", async (req, res) => {
     let genreMap = {};
 
     projects.forEach(project => {
-        console.log(project)
+
         const genre = project.genre.name;
         // Cette condition pour éviter les doublons quand on liste les genres
         if (!genreMap[genre]) {

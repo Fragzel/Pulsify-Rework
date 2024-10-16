@@ -174,7 +174,7 @@ function Explorer() {
         })
         const res = await fetchAutor.json()
         if (res.result) {
-            setListProject(res.promptsList)
+            setListProject(res.projectList)
             setErrorSearch(false)
         } else {
             setErrorSearch(true)
