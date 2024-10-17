@@ -25,8 +25,8 @@ router.post("/add", async (req, res) => {
     const foundUser = await User.findOne({ email: req.body.email, token: req.body.token })
     !foundUser && res.json({ result: false, error: 'Access denied' });
 
-    let foundGenreId;
-    foundGenreId = await Genre.findOne({ name: req.body.genre })._id;
+    let foundGenre = await Genre.findOne({ name: req.body.genre })
+    let foundGenreId = foundGenre ? foundGenre._id : null;
     if (!foundGenreId) {
         const newGenre = new Genre({ userId: foundUser._id, name: req.body.genre });
         try {
