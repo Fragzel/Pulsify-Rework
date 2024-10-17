@@ -19,31 +19,31 @@ router.post('/search', async (req, res) => {
 
 
 
-        const foundProjects = await Project.find({ prompt: formattedRegex }).populate("genre" , "name").populate("userId", "firstname username picture")
+    const foundProjects = await Project.find({ prompt: formattedRegex }).populate("genre", "name").populate("userId", "firstname username picture")
 
-        listIds = foundProjects.map(project => project._id)
+    listIds = foundProjects.map(project => project._id)
 
-        let projects = foundProjects.map((project) => 
-            listIds.includes(project._id) &&
-            ({
-                _id: project._id,
-                audio: project.audio,
-                genre: project.genre.name,
-                name: project.name,
-                prompt: project.prompt,
-                rating: project.rating,
-                firstname: project.userId.firstname,
-                username: project.userId.username,
-                picture: project.userId.picture
-            })
-        )
-        
-        
-        if (projects.length) {
-            res.json({ result: true, keywordsList: projects })
-        } else {
-            res.json({ result: false, error: 'Mot clé existant mais projet associé non public' })
-        }
+    let projects = foundProjects.map((project) =>
+        listIds.includes(project._id) &&
+        ({
+            _id: project._id,
+            audio: project.audio,
+            genre: project.genre.name,
+            name: project.name,
+            prompt: project.prompt,
+            rating: project.rating,
+            firstname: project.userId.firstname,
+            username: project.userId.username,
+            picture: project.userId.picture
+        })
+    )
+
+
+    if (projects.length) {
+        res.json({ result: true, keywordsList: projects })
+    } else {
+        res.json({ result: false, error: 'Mot clé existant mais projet associé non public' })
+    }
 
 
 
@@ -65,8 +65,8 @@ router.post("/suggestions", async (req, res) => {
 
     // Initialisation de la liste de suggestions
     let suggestionsList = [];
-    const foundGenre = await Genre.findOne({ name: { $regex: new RegExp(req.body.genre, "i") } });
-    const foundGenreId = foundGenre?._id;
+    const foundGenre = await Genre.findOne({ name: { $regex: new RegExp(req.body.genre, "i") } })
+    const foundGenreId = foundGenre ? foundGenre._id : null;
 
     // Afficher des suggestions de départ si le champ prompt n'est pas rempli
     if (req.body.partialPrompt === '') {
@@ -97,7 +97,7 @@ router.post("/suggestions", async (req, res) => {
     }
 
     let regexKeywords = keywords.map(keyword => new RegExp(`^${escapeRegex(keyword)}$`, 'i'));
-
+    console.log(regexKeywords)
 
     //Initialisation des coefficients de calcul du score
     const weight_rating = 0.7;
