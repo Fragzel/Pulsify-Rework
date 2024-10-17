@@ -70,9 +70,9 @@ router.post("/add", async (req, res) => {
         }
     }
 
-    // Créer un tableau des id présents en clé étrangère pour le keyword s'il n'existe pas. S'il existe, on rajoute les keywords dans ses relatedKeywords.
-    const existingKeywordIds = [];
-    const newKeywordIds = [];
+    // Vérifier si les Keywords existent déjà en BDD, si non, les créer
+    const existingKeywordIds = []; // liste des Keywords existants
+    const newKeywordIds = []; // liste des Keywords à créer
 
     for (const word of keywords) {
         const foundKeyword = await Keyword.findOne({ name: word, userId: foundUser._id, genre: foundGenreId });
@@ -91,21 +91,16 @@ router.post("/add", async (req, res) => {
         }
     }
 
-    // Si l'id n'est pas présent dans les relatedKeywords, on le rajoute
+    // Ajouter les nouveaux Keywords à la liste des relatedKeywords des Keywords existants
     if (newKeywordIds.length) {
         const keywordsData = await Keyword.find({ _id: { $in: newKeywordIds } });
 
         for (const keywordData of keywordsData) {
-            const { _id, name } = keywordData;
-
-            const filteredKeywordIds = keywords.filter(e => e === name).length > 1
-                ? newKeywordIds
-                : newKeywordIds.filter(e => e !== _id.toString());
-
+            const { _id } = keywordData;
+            const filteredKeywordIds = newKeywordIds.filter(e => e.toString() !== _id.toString());
             const allKeywordsIdsOfThisGenre = [...filteredKeywordIds, ...existingKeywordIds];
-
             await Keyword.updateOne({ _id, genre: foundGenreId }, {
-                $push: { relatedKeywords: allKeywordsIdsOfThisGenre }
+                $addToSet: { relatedKeywords: { $each: allKeywordsIdsOfThisGenre } }
             });
         }
     }
