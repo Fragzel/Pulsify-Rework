@@ -28,8 +28,8 @@ function Project() {
     const [blink, setBlink] = useState(false);
     const [totalScore, setTotalScore] = useState(0);
     const [spotifyNoResult, setSpotifyNoResult] = useState(false);
-    const [includeLikedProjects, setIncludeLikedProjects] = useState(false);
-    const [isCheckBoxChecked, setIsCheckBoxChecked] = useState(false);
+    const [includeLikedProjects, setIncludeLikedProjects] = useState(true);
+    const [isCommunityBoxChecked, setIsCommunityBoxChecked] = useState(true);
 
     const router = useRouter();
     !user.token && router.push({ pathname: '/' });
@@ -45,7 +45,7 @@ function Project() {
             setProjectPrompt(router.query.prompt);
         }
         if (router.query.isCommunity) {
-            setIsCheckBoxChecked(true);
+            setIsCommunityBoxChecked(true);
             setIncludeLikedProjects(true);
         }
     }, [])
@@ -222,7 +222,7 @@ function Project() {
     const checkbox = (e) => {
         if (projectGenre) {
             setGenreIsInvalid(false)
-            setIsCheckBoxChecked(e.target.checked)
+            setIsCommunityBoxChecked(e.target.checked)
             setIncludeLikedProjects(!includeLikedProjects)
         } else {
             setGenreIsInvalid(true)
@@ -245,7 +245,7 @@ function Project() {
                             <label className={styles.checkboxLabel}>
                                 <input type="checkbox"
                                     className={styles.checkBoxSuggestion}
-                                    checked={isCheckBoxChecked}
+                                    checked={isCommunityBoxChecked}
                                     value={includeLikedProjects}
                                     onChange={(e) => { checkbox(e) }} />
                                 <span className={styles.customCheckbox}></span>
