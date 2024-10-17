@@ -100,7 +100,9 @@ router.post("/add", async (req, res) => {
 
             const filteredKeywordIds = keywords.filter(e => e === name).length > 1
                 ? newKeywordIds
-                : newKeywordIds.filter(e => e !== _id.toString());
+                : newKeywordIds.filter(e => e.toString() !== _id.toString())
+
+            console.log("filteredKeywordIds", filteredKeywordIds)
 
             const allKeywordsIdsOfThisGenre = [...filteredKeywordIds, ...existingKeywordIds];
 

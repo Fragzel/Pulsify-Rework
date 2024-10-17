@@ -97,7 +97,6 @@ router.post("/suggestions", async (req, res) => {
     }
 
     let regexKeywords = keywords.map(keyword => new RegExp(`^${escapeRegex(keyword)}$`, 'i'));
-    console.log(regexKeywords)
 
     //Initialisation des coefficients de calcul du score
     const weight_rating = 0.7;
