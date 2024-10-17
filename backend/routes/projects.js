@@ -26,8 +26,11 @@ router.post("/add", async (req, res) => {
     !foundUser && res.json({ result: false, error: 'Access denied' });
 
     let foundGenreId;
-    foundGenreId = await Genre.findOne({ name: req.body.genre })
-    foundGenreId = foundGenreId._id;
+
+    foundGenreId = await Genre.findOne({ name: req.body.genre, userId: foundUser._id });
+    foundGenreId = foundGenreId ? foundGenreId._id : null;
+
+    console.log("foundGenreId", foundGenreId)
     if (!foundGenreId) {
         const newGenre = new Genre({ userId: foundUser._id, name: req.body.genre });
         try {
@@ -230,8 +233,8 @@ router.delete("/prompt", async (req, res) => {
 
 
 
-// Enregistrer un report d'un projet
-router.post('/reportProject', async (req, res) => {
+// Enregistrer un signalement d'un projet
+router.post('/signalementProject', async (req, res) => {
 
     // Vérification des éléments requis pour la route
     if (!checkBody(req.body, ['idPrompt', 'text', 'email', "token"])) {
@@ -260,8 +263,8 @@ router.post('/reportProject', async (req, res) => {
     }
 });
 
-// Enregistrement un report d'un commentaire
-router.post('/reportComment', async (req, res) => {
+// Enregistrement un signalement d'un commentaire
+router.post('/signalementComment', async (req, res) => {
 
     // Vérification des éléments requis pour la route
     if (!checkBody(req.body, ['idProject', 'text', 'email', "token"])) {
@@ -344,7 +347,7 @@ router.post('/comment', async (req, res) => {
 });
 
 
-// Supprimer un commentaire et les reports attribués
+// Supprimer un commentaire et les signalements attribués
 router.delete('/comment', async (req, res) => {
 
     // Vérification des éléments requis pour la route

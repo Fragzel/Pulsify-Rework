@@ -66,7 +66,7 @@ router.post("/suggestions", async (req, res) => {
     // Initialisation de la liste de suggestions
     let suggestionsList = [];
     const foundGenre = await Genre.findOne({ name: { $regex: new RegExp(req.body.genre, "i") } })
-    const foundGenreId = foundGenre._id
+    const foundGenreId = foundGenre ? foundGenre._id : null;
 
     // Afficher des suggestions de départ si le champ prompt n'est pas rempli
     if (req.body.partialPrompt === '') {
