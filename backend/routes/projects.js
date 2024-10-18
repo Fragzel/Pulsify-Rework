@@ -26,11 +26,9 @@ router.post("/add", async (req, res) => {
     !foundUser && res.json({ result: false, error: 'Access denied' });
 
     let foundGenreId;
-
     foundGenreId = await Genre.findOne({ name: req.body.genre, userId: foundUser._id });
     foundGenreId = foundGenreId ? foundGenreId._id : null;
 
-    console.log("foundGenreId", foundGenreId)
     if (!foundGenreId) {
         const newGenre = new Genre({ userId: foundUser._id, name: req.body.genre });
         try {
@@ -59,26 +57,25 @@ router.post("/add", async (req, res) => {
     const savedProject = await newProject.save();
 
     // Récupérer les keywords de manière formatée 
-    const keywords = []; //liste des Keywords et formaté du prompt . 
-
-    const splittedKeywords = formattedPrompt.split(',');
-
-    for (const word of splittedKeywords) {
+    const incomingKeywords = []; //liste des Keywords et formaté du prompt . 
+    const splittedIncomingKeywords = formattedPrompt.split(',');
+    for (const word of splittedIncomingKeywords) {
         const trimmedWord = word.trim();
         if (trimmedWord) {
-            keywords.push(trimmedWord.charAt(0).toUpperCase() + trimmedWord.slice(1));
+            incomingKeywords.push(trimmedWord.charAt(0).toUpperCase() + trimmedWord.toLowerCase().slice(1));
         }
     }
 
     // Vérifier si les Keywords existent déjà en BDD, si non, les créer
-    const existingKeywordIds = []; // liste des Keywords existants
-    const newKeywordIds = []; // liste des Keywords à créer
+    const storedKeywordIds = []; // liste des Keywords existants
+    const savedKeywords = []; // liste des Keywords à créer
 
-    for (const word of keywords) {
+    // Parcourir les Keywords entrants
+    for (const word of incomingKeywords) {
         const foundKeyword = await Keyword.findOne({ name: word, userId: foundUser._id, genre: foundGenreId });
-        if (foundKeyword) {
-            existingKeywordIds.push(foundKeyword._id);
-        } else {
+
+        // Si le Keyword n'existe pas, le créer
+        if (!foundKeyword) {
             const newKeyword = new Keyword({
                 userId: foundUser._id,
                 name: word,
@@ -87,45 +84,80 @@ router.post("/add", async (req, res) => {
                 genre: foundGenreId
             });
             const savedKeyword = await newKeyword.save();
-            newKeywordIds.push(savedKeyword._id);
-        }
-    }
+            savedKeywords.push(savedKeyword);
 
-    // Ajouter les nouveaux Keywords à la liste des relatedKeywords des Keywords existants
-    if (newKeywordIds.length) {
-        const keywordsData = await Keyword.find({ _id: { $in: newKeywordIds } });
-
-        for (const keywordData of keywordsData) {
-            const { _id } = keywordData;
-            const filteredKeywordIds = newKeywordIds.filter(e => e.toString() !== _id.toString());
-            const allKeywordsIdsOfThisGenre = [...filteredKeywordIds, ...existingKeywordIds];
-            await Keyword.updateOne({ _id, genre: foundGenreId }, {
-                $addToSet: { relatedKeywords: { $each: allKeywordsIdsOfThisGenre } }
-            });
-        }
-    }
-
-    // Si il y a déjà des relatedKeywords pour ce projet, ajoute ceux qui n'y sont pas déjà.
-    if (existingKeywordIds.length) {
-        for (const id of existingKeywordIds) {
-            const keyword = await Keyword.findById(id)
-            const kewordIdsToAdd = [];
-            for (let i = 0; i < newKeywordIds.length; i++) {
-                if (!keyword.relatedKeywords.some(e => String(e) === String(newKeywordIds[i]))) {
-                    kewordIdsToAdd.push(newKeywordIds[i]);
+            // Mettre à jour les nouveaux Keywords avec leurs relatedKeywords
+            if (savedKeywords.length) {
+                const relatedKeywords = [...new Set([...savedKeywords, ...storedKeywordIds])];
+                for (const savedKeyword of savedKeywords) {
+                    const { _id } = savedKeyword;
+                    await Keyword.updateOne({ _id, genre: foundGenreId }, { relatedKeywords: relatedKeywords.filter(e => e._id.toString() !== _id.toString()) });
                 }
             }
-            const updateRelatedKeywordId = [...keyword.relatedKeywords, ...kewordIdsToAdd];
 
-            let newScore = (keyword.average_rating * keyword.iterations) + savedProject.rating;
+            // Si le Keyword existe, mettre à jour sa note moyenne et son nombre d'itérations
+        } else {
+            storedKeywordIds.push(foundKeyword._id);
+            let newScore = (foundKeyword.average_rating * foundKeyword.iterations) + savedProject.rating;
+            await Keyword.updateOne({ _id: foundKeyword._id }, { $inc: { iterations: 1 }, average_rating: newScore / (foundKeyword.iterations + 1) });
 
-            await Keyword.updateOne({ _id: id }, {
-                $inc: { iterations: 1 },
-                relatedKeywords: updateRelatedKeywordId,
-                average_rating: newScore / (keyword.iterations + 1)
-            });
+
+            const relatedKeywords = [...new Set([...savedKeywords, ...storedKeywordIds])];
+            const finalRelatedKeywords = [...storedKeywordIds];
+
+            for (const relatedKeyword of relatedKeywords) {
+                const { _id } = relatedKeyword;
+                const filteredKeywords = relatedKeywords.filter(e => e._id.toString() !== _id.toString());
+                console.log('filteredKeywords', filteredKeywords);
+                finalRelatedKeywords.push(...filteredKeywords);
+            }
+
+            await Promise.all(
+                relatedKeywords.map(async (relatedKeyword) => {
+                    const { _id } = relatedKeyword;
+                    const filteredKeywords = relatedKeywords.filter(e => e._id.toString() !== _id.toString());
+                    await Keyword.updateOne({ _id, genre: foundGenreId }, { relatedKeywords: filteredKeywords });
+                })
+            );
         }
     }
+
+
+
+    // // Mettre à jour les Keywords existants avec les nouvelles relations
+    // if (storedKeywordIds.length) {
+    //     for (const storedKeywordId of storedKeywordIds) {
+    //         const foundKeywordById = await Keyword.findById(storedKeywordId);
+    //         const incomingFilteredRelatedKeywordIds = [];
+    //         for (let i = 0; i < savedKeywords.length; i++) {
+    //             if (!foundKeywordById.related_keywords.some(e => String(e) === String(savedKeywords[i]._id))) {
+    //                 incomingFilteredRelatedKeywordIds.push(savedKeywords[i]._id);
+    //             }
+    //         }
+    //         const updateRelatedKeywordId = [...foundKeywordById.related_keywords, ...incomingFilteredRelatedKeywordIds];
+
+    //         let resultAverageRating = 0;
+    //         const promptKeywordsCount = (foundKeywordById.prompts).length;
+    //         for (const prompt of foundKeywordById.prompts) {
+    //             resultAverageRating += prompt.rating;
+    //         }
+    //         if (!foundKeywordById.prompts.some(e => String(e) === String(savedProject._id))) {
+    //             await Keyword.updateOne({ _id: storedKeywordId }, {
+    //                 $inc: { frequency: 1 },
+    //                 related_keywords: updateRelatedKeywordId,
+    //                 $push: { prompts: savedProject._id },
+    //                 average_rating: resultAverageRating / promptKeywordsCount
+    //             });
+    //         } else {
+    //             await Keyword.updateOne({ _id: storedKeywordId }, {
+    //                 $inc: { frequency: 1 },
+    //                 related_keywords: updateRelatedKeywordId,
+    //                 average_rating: resultAverageRating / promptKeywordsCount
+    //             });
+    //         }
+    //     }
+    // }
+
     res.json({ result: true, prompt: savedProject });
 })
 
