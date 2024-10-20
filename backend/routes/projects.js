@@ -66,7 +66,6 @@ router.post("/add", async (req, res) => {
         }
     }
 
-    // Vérifier si les Keywords existent déjà en BDD, si non, les créer
     const storedKeywordIds = []; // liste des Keywords existants
     const savedKeywords = []; // liste des Keywords à créer
 
@@ -81,83 +80,30 @@ router.post("/add", async (req, res) => {
                 name: word,
                 iterations: 1,
                 average_rating: req.body.rating,
-                genre: foundGenreId
+                genre: foundGenreId,
             });
             const savedKeyword = await newKeyword.save();
-            savedKeywords.push(savedKeyword);
+            savedKeywords.push(savedKeyword._id);
 
-            // Mettre à jour les nouveaux Keywords avec leurs relatedKeywords
-            if (savedKeywords.length) {
-                const relatedKeywords = [...new Set([...savedKeywords, ...storedKeywordIds])];
-                for (const savedKeyword of savedKeywords) {
-                    const { _id } = savedKeyword;
-                    await Keyword.updateOne({ _id, genre: foundGenreId }, { relatedKeywords: relatedKeywords.filter(e => e._id.toString() !== _id.toString()) });
-                }
-            }
-
-            // Si le Keyword existe, mettre à jour sa note moyenne et son nombre d'itérations
         } else {
             storedKeywordIds.push(foundKeyword._id);
             let newScore = (foundKeyword.average_rating * foundKeyword.iterations) + savedProject.rating;
-            await Keyword.updateOne({ _id: foundKeyword._id }, { $inc: { iterations: 1 }, average_rating: newScore / (foundKeyword.iterations + 1) });
-
-
-            const relatedKeywords = [...new Set([...savedKeywords, ...storedKeywordIds])];
-            const finalRelatedKeywords = [...storedKeywordIds];
-
-            for (const relatedKeyword of relatedKeywords) {
-                const { _id } = relatedKeyword;
-                const filteredKeywords = relatedKeywords.filter(e => e._id.toString() !== _id.toString());
-                console.log('filteredKeywords', filteredKeywords);
-                finalRelatedKeywords.push(...filteredKeywords);
-            }
-
-            await Promise.all(
-                relatedKeywords.map(async (relatedKeyword) => {
-                    const { _id } = relatedKeyword;
-                    const filteredKeywords = relatedKeywords.filter(e => e._id.toString() !== _id.toString());
-                    await Keyword.updateOne({ _id, genre: foundGenreId }, { relatedKeywords: filteredKeywords });
-                })
+            await Keyword.updateOne(
+                { _id: foundKeyword._id },
+                { $inc: { iterations: 1 }, average_rating: newScore / (foundKeyword.iterations + 1) }
             );
         }
     }
+    const allKeywordIds = [...savedKeywords, ...storedKeywordIds];
 
-
-
-    // // Mettre à jour les Keywords existants avec les nouvelles relations
-    // if (storedKeywordIds.length) {
-    //     for (const storedKeywordId of storedKeywordIds) {
-    //         const foundKeywordById = await Keyword.findById(storedKeywordId);
-    //         const incomingFilteredRelatedKeywordIds = [];
-    //         for (let i = 0; i < savedKeywords.length; i++) {
-    //             if (!foundKeywordById.related_keywords.some(e => String(e) === String(savedKeywords[i]._id))) {
-    //                 incomingFilteredRelatedKeywordIds.push(savedKeywords[i]._id);
-    //             }
-    //         }
-    //         const updateRelatedKeywordId = [...foundKeywordById.related_keywords, ...incomingFilteredRelatedKeywordIds];
-
-    //         let resultAverageRating = 0;
-    //         const promptKeywordsCount = (foundKeywordById.prompts).length;
-    //         for (const prompt of foundKeywordById.prompts) {
-    //             resultAverageRating += prompt.rating;
-    //         }
-    //         if (!foundKeywordById.prompts.some(e => String(e) === String(savedProject._id))) {
-    //             await Keyword.updateOne({ _id: storedKeywordId }, {
-    //                 $inc: { frequency: 1 },
-    //                 related_keywords: updateRelatedKeywordId,
-    //                 $push: { prompts: savedProject._id },
-    //                 average_rating: resultAverageRating / promptKeywordsCount
-    //             });
-    //         } else {
-    //             await Keyword.updateOne({ _id: storedKeywordId }, {
-    //                 $inc: { frequency: 1 },
-    //                 related_keywords: updateRelatedKeywordId,
-    //                 average_rating: resultAverageRating / promptKeywordsCount
-    //             });
-    //         }
-    //     }
-    // }
-
+    for (const keywordId of allKeywordIds) {
+        // Filtre pour ne pas mettre l'id du keyword dans ses propres relatives
+        const otherKeywords = allKeywordIds.filter(id => id !== keywordId);
+        await Keyword.updateOne(
+            { _id: keywordId },
+            { $addToSet: { relatedKeywords: { $each: otherKeywords } } } // Utilise $addToSet avec $each pour ajouter plusieurs éléments sans doublons
+        );
+    }
     res.json({ result: true, prompt: savedProject });
 })
 
