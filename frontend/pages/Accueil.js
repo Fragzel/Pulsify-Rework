@@ -35,7 +35,7 @@ function Accueil() {
     const fetchProjects = async () => {
         // Fetch des projets 
         const { email, token } = user;
-        const fetchProject = await fetch(`${siteUrl}/search/myGenres`, {
+        const fetchProject = await fetch(`${siteUrl}/genres/searchMyGenres`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ search, email, token }),
@@ -48,7 +48,7 @@ function Accueil() {
     const fetchCommunityProjects = async () => {
         // Fetch des projets 
         const { email, token } = user;
-        const fetchProject = await fetch(`${siteUrl}/search/likedGenres`, {
+        const fetchProject = await fetch(`${siteUrl}/genres/searchLikedGenres`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ search: searchCommunity, email, token }),

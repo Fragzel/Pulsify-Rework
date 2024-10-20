@@ -8,7 +8,46 @@ const Project = require('../models/projects');
 const Genre = require('../models/genres');
 const { checkBody } = require('../modules/tools');
 
+router.post('/search', async (req, res) => {
 
+    if (!checkBody(req.body, ['keyword', 'email', "token"])) {
+        res.json({ result: false, error: 'Champs vides ou manquants' });
+        return;
+    }
+
+    const formattedRegex = new RegExp(req.body.keyword, "i");
+
+
+
+    const foundProjects = await Project.find({ prompt: formattedRegex }).populate("genre", "name").populate("userId", "firstname username picture")
+
+    listIds = foundProjects.map(project => project._id)
+
+    let projects = foundProjects.map((project) =>
+        listIds.includes(project._id) &&
+        ({
+            _id: project._id,
+            audio: project.audio,
+            genre: project.genre.name,
+            name: project.name,
+            prompt: project.prompt,
+            rating: project.rating,
+            firstname: project.userId.firstname,
+            username: project.userId.username,
+            picture: project.userId.picture
+        })
+    )
+
+
+    if (projects.length) {
+        res.json({ result: true, keywordsList: projects })
+    } else {
+        res.json({ result: false, error: 'Mot clé existant mais projet associé non public' })
+    }
+
+
+
+});
 
 
 

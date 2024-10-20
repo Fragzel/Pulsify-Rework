@@ -167,7 +167,7 @@ function Explorer() {
     // Récupération des auteurs 
     const fetchAutor = async () => {
         const { email, token } = user;
-        const fetchAutor = await fetch(`${siteUrl}/search/users`, {
+        const fetchAutor = await fetch(`${siteUrl}/users/search`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: search, token, email }),
@@ -185,7 +185,7 @@ function Explorer() {
     // Récupération des mots clés
     const fetchKeyword = async () => {
         const { email, token } = user;
-        const fetchKeyWord = await fetch(`${siteUrl}/search/keywords`, {
+        const fetchKeyWord = await fetch(`${siteUrl}/keywords/search`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ keyword: search, email, token }),
@@ -203,7 +203,7 @@ function Explorer() {
     // Récupération des projets 
     const fetchProject = async () => {
         const { email, token } = user;
-        const fetchProject = await fetch(`${siteUrl}/search/title`, {
+        const fetchProject = await fetch(`${siteUrl}/projects/searchTitle`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: search, email, token }),
@@ -225,7 +225,7 @@ function Explorer() {
         if (genre) {
             // Récupération des projets pour la suggestion de recherche 
             setSearch(genre)
-            const fetchProject = await fetch(`${siteUrl}/search/genre`, {
+            const fetchProject = await fetch(`${siteUrl}/genres/searchGenre`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ genre, email, token }),
@@ -240,7 +240,7 @@ function Explorer() {
             }
         } else {
             // Récupération des projets pour la recherche
-            const fetchProject = await fetch(`${siteUrl}/search/genre`, {
+            const fetchProject = await fetch(`${siteUrl}/genres/searchGenre`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ genre: search, email, token }),
