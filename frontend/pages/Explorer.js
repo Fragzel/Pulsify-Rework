@@ -185,7 +185,7 @@ function Explorer() {
     // Récupération des mots clés
     const fetchKeyword = async () => {
         const { email, token } = user;
-        const fetchKeyWord = await fetch(`${siteUrl}/keywords/search`, {
+        const fetchKeyWord = await fetch(`${siteUrl}/search/keywords`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ keyword: search, email, token }),
@@ -225,7 +225,7 @@ function Explorer() {
         if (genre) {
             // Récupération des projets pour la suggestion de recherche 
             setSearch(genre)
-            const fetchProject = await fetch(`${siteUrl}/genres/searchGenre`, {
+            const fetchProject = await fetch(`${siteUrl}/search/genre`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ genre, email, token }),
@@ -240,7 +240,7 @@ function Explorer() {
             }
         } else {
             // Récupération des projets pour la recherche
-            const fetchProject = await fetch(`${siteUrl}/genres/searchGenre`, {
+            const fetchProject = await fetch(`${siteUrl}/search/genre`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ genre: search, email, token }),
