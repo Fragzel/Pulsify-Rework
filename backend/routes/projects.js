@@ -137,7 +137,44 @@ router.post("/:projectId/upload-audio", upload.single('audio'), async (req, res)
 
 
 // Recherche par titre
+router.post('/searchTitle', async (req, res) => {
 
+    // Vérification des éléments requis pour la route
+    if (!checkBody(req.body, ['title', 'email', "token"])) {
+        res.json({ result: false, error: 'Champs manquants ou vides' });
+        return;
+    }
+
+    // Authentification de l'utilisateur
+    const foundUser = await User.findOne({ email: req.body.email, token: req.body.token });
+    if (!foundUser) {
+        res.json({ result: false, error: 'Access denied' });
+        return;
+    }
+
+    // Recherche par titre en ignorant la casse
+    const foundProjects = await Project.find({ name: { $regex: new RegExp(req.body.title, "i") } })
+        .populate("genre", "name")
+        .populate("userId", "firstname username picture");
+
+    if (foundProjects.length) {
+        const projectList = foundProjects.map(project => ({
+            _id: project._id,
+            audio: project.audio,
+            genre: project.genre.name,
+            name: project.name,
+            prompt: project.prompt,
+            rating: project.rating,
+            firstname: project.userId.firstname,
+            username: project.userId.username,
+            picture: project.userId.picture
+        }));
+
+        res.json({ result: true, projectList: projectList });
+    } else {
+        res.json({ result: false, error: 'Projet non existant' });
+    }
+});
 
 
 // Suppression d'un prompt
