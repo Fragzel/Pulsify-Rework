@@ -111,54 +111,6 @@ router.post('/signup/google', (req, res) => {
   });
 });
 
-
-// Recherche par Username depuis la page Explorer
-router.post('/search', async (req, res) => {
-
-  // Vérifier que les champs sont tous fournis
-  if (!checkBody(req.body, ['username', 'token', 'email'])) {
-    res.json({ result: false, error: 'Champs vides ou manquants' });
-    return;
-  }
-
-  // Authentification de l'utilisateur
-  const foundUser = await User.findOne({ email: req.body.email, token: req.body.token })
-  if (!foundUser) { return res.json({ result: false, error: 'Access denied' }) };
-
-  const fetchAllUser = await User.find({ username: { $regex: new RegExp(req.body.username, "i") } })
-  if (fetchAllUser.length) {
-
-    // Récupérer les projets publics de l'utilisateur
-
-    const userProjects = await Project.find({ userId: { $in: fetchAllUser } }).populate('userId', 'firstname picture username').populate('genre', 'name')
-    const projectList = []
-    for (const project of userProjects) {
-      project.isPublic && projectList.push({
-        _id: project._id,
-        audio: project.audio,
-        genre: project.genre.name,
-        name: project.name,
-        prompt: project.prompt,
-        rating: project.rating,
-        firstname: project.userId.firstname,
-        username: project.userId.username,
-        picture: project.userId.picture
-      })
-    }
-
-
-    if (projectList.length) {
-      res.json({ result: true, projectList: projectList });
-    } else {
-      res.json({ result: false, error: "Cet auteur n'a aucun projet" });
-    }
-
-  } else {
-    res.json({ result: false, error: 'Utilisateur introuvable' })
-  }
-})
-
-
 // Retourne les projets de l'utilisateur
 router.post('/projets', async (req, res) => {
 
