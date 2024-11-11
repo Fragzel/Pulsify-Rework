@@ -423,3 +423,11 @@
 .genreItem:hover {
     background-color: #B300F2;
 }
+
+.inputSunoLink {
+    height: "50px";
+    width: "30%";
+    resize: "none";
+    font-size: "30px";
+    padding: "10px"
+}

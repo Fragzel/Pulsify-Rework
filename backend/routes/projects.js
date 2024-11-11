@@ -136,59 +136,80 @@ router.post("/:projectId/upload-audio", upload.single('audio'), async (req, res)
 
 });
 
-router.get('/get-audio-url', async (req, res) => {
-    try {
-        const browser = await puppeteer.launch({
-            headless: false, // Changez en `true` pour le déploiement
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-        const page = await browser.newPage();
 
-        // Modifier l'User-Agent
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36');
 
-        // Activer les logs de la page pour détecter les erreurs
-        page.on('console', (msg) => console.log('PAGE LOG:', msg.text()));
+// router.get('/get-audio-url', async (req, res) => {
+//     const delay = Math.floor(Math.random() * 5000 + 1000); // délai aléatoire
 
-        await page.goto('https://suno.com/song/32fec252-f91c-48d2-9a81-411d9e1e25c8', { waitUntil: 'networkidle2' });
+//     try {
+//         // Lancer une instance du navigateur si elle n'existe pas ou est déconnectée
+//         if (!browser || !browser.isConnected()) {
+//             browser = await puppeteer.launch({
+//                 headless: false, // Changez en `true` pour le déploiement
+//                 args: ['--no-sandbox', '--disable-setuid-sandbox']
+//             });
+//         }
 
-        // Attendre un instant pour simuler le comportement naturel
-        await page.waitForTimeout(2000);
+//         // Vérifier s'il y a déjà une page ouverte pour la réutiliser
+//         const pages = await browser.pages();
+//         let page = pages.length > 0 ? pages[0] : await browser.newPage();
 
-        // Scroller vers le bouton
-        await page.evaluate(() => {
-            const playButton = document.querySelector('button[aria-label="Playbar: Play button"]');
-            if (playButton) playButton.scrollIntoView();
-        });
+//         // Modifier l'User-Agent
+//         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36');
 
-        // Attendre que le bouton Play soit chargé, avec un timeout plus long
-        await page.waitForSelector('button[aria-label="Playbar: Play button"]', { visible: true, timeout: 30000 });
+//         // Activer les logs de la page pour détecter les erreurs
+//         page.on('console', (msg) => console.log('PAGE LOG:', msg.text()));
 
-        // Cliquer sur le bouton Play
-        await page.click('button[aria-label="Playbar: Play button"]');
+//         // Aller à la page
+//         await page.goto('https://suno-api-five-lemon.vercel.app/api/clip?id=23dee79f-2f10-4222-ad6c-8b5af1c3c605', { waitUntil: 'networkidle2' });
 
-        // Attendre une seconde pour que l'audio se charge et commence à jouer
-        await page.waitForTimeout(1000);
+//         // Attendre un instant pour simuler le comportement naturel
+//         await page.waitForTimeout(20000);
 
-        // Récupérer l'URL de l'audio, avec une vérification de l'existence de l'élément
-        const audioSrc = await page.evaluate(() => {
-            const audioElement = document.querySelector('#active-audio-play');
-            return audioElement ? audioElement.src : null;
-        });
+//         // Vérifier si le bouton Play existe
+//         const playButtonExists = await page.evaluate(() => {
+//             return document.querySelector('button[aria-label="Playbar: Play button"]') !== null;
+//         });
 
-        await browser.close();
+//         if (playButtonExists) {
+//             // Attendre que le bouton Play soit chargé, avec un délai supplémentaire
+//             await page.waitForSelector('button[aria-label="Playbar: Play button"]', { visible: true, timeout: 10000 });
 
-        // Envoyer l'URL audio au frontend
-        if (audioSrc) {
-            res.json({ audioUrl: audioSrc });
-        } else {
-            res.status(404).json({ error: 'Audio non trouvé' });
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Erreur interne du serveur' });
-    }
-});
+//             // Cliquer sur le bouton Play
+//             await page.click('button[aria-label="Playbar: Play button"]');
+
+//             // Reprendre l'AudioContext après le clic pour s'assurer qu'il démarre
+//             await page.evaluate(() => {
+//                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+//                 if (audioContext.state === 'suspended') {
+//                     audioContext.resume();
+//                 }
+//             });
+
+//             // Attendre que l'audio se charge et commence à jouer
+//             await page.waitForTimeout(5000);
+
+//             // Récupérer l'URL de l'audio
+//             const audioSrc = await page.evaluate(() => {
+//                 const audioElement = document.querySelector('#active-audio-play');
+//                 return audioElement ? audioElement.src : null;
+//             });
+
+//             // Envoyer l'URL audio au frontend
+//             if (audioSrc) {
+//                 res.json({ audioUrl: audioSrc });
+//             } else {
+//                 res.status(404).json({ error: 'Audio non trouvé' });
+//             }
+//         } else {
+//             res.status(404).json({ error: 'Bouton Play non trouvé ou bloqué par Captcha' });
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: 'Erreur interne du serveur' });
+//     }
+// });
+
 
 
 // Recherche par titre
@@ -196,6 +217,31 @@ router.get('/get-audio-url', async (req, res) => {
 
 
 // Suppression d'un prompt
+
+router.get("/get-suno-clip/:sunoLink", async (req, res) => {
+
+
+    const { sunoLink } = req.params;
+    const fetchApi = await fetch(`https://suno-api-five-lemon.vercel.app/api/clip?id=${sunoLink}`)
+    const projectData = await fetchApi.json()
+
+    if (projectData) {
+        const newProject = new Project({
+            genre: projectData,
+            prompt: formattedPrompt,
+            audio: "",
+            rating: req.body.rating,
+            isPublic: req.body.isPublic,
+            username: req.body.username,
+            userId: foundUser._id,
+            name: req.body.name
+
+
+
+        })
+    }
+})
+
 router.delete("/prompt", async (req, res) => {
 
     // Vérification des éléments requis pour la route

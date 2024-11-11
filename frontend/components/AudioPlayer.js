@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 
 const AudioPlayer = () => {
     const [audioUrl, setAudioUrl] = useState(null);
-
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
     // Fonction pour récupérer l'URL audio depuis le backend
-    const fetchAudioUrl = async () => {
+    async function fetchAudioUrl() {
         try {
-            const response = await fetch('http://localhost:3000/projects/get-audio-url'); // URL du backend
+            const response = await fetch(`${siteUrl}/projects/get-suno-clip/${sunoLink}`); // URL du backend
             const data = await response.json();
 
-            if (data.audioUrl) {
-                setAudioUrl(data.audioUrl); // Stocke l'URL de l'audio
+            if (data.audio_url) {
+                setAudioUrl(data.audio_url); // Stocke l'URL de l'audio
             } else {
                 console.error('Audio non trouvé.');
             }

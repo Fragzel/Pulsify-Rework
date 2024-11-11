@@ -255,3 +255,43 @@
   justify-content: space-around;
   /* color: #c865e9 */
 }
+
+.inputSunoLink {
+  width: 25vw;
+  height: 5vh;
+  max-height: 5vh;
+  max-width: 25vw;
+  color: rgb(255, 255, 255);
+  background: #737286;
+  border: 1px solid #000000;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  margin: 10px;
+  padding: 1vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 150%;
+}
+
+.inputSunoLink::placeholder {
+  color: rgb(255, 255, 255);
+}
+
+.importContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 80%;
+  width: 80vw;
+  font-family: 'Arial';
+  background-color: #0B0A1A;
+  color: white;
+}
+
+.inputImportContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

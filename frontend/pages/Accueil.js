@@ -5,12 +5,13 @@ import { useRouter } from "next/router";
 import Header from "../components/Header";
 import ModelCard from "../components/ModelCard";
 import { useSelector } from "react-redux";
-
+import AutocompleteIntroduction from "../components/autocompleteMui";
 
 function Accueil() {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
     const [newProject, setNewProject] = useState(false);
+    const [newImport, setNewImport] = useState(false)
     const [newExistingProject, setNewExistingProject] = useState(false);
     const [search, setSearch] = useState('');
     const [searchCommunity, setSearchCommunity] = useState('');
@@ -81,6 +82,7 @@ function Accueil() {
     }
 
 
+
     let display =
         <div className={styles.container}>
             <div className={styles.choiceContainer}>
@@ -89,6 +91,8 @@ function Accueil() {
                     target='_blank'
                     rel="noopener noreferrer"><span className={styles.link} >Cliquez ici</span></a></div>
                 <button className={styles.createBtn} onClick={() => setNewProject(true)}>Nouveau projet</button>
+                <button className={styles.createBtn} onClick={() => setNewImport(true)}>Importer depuis Suno</button>
+
             </div>
             <Link href='Explorer'>
                 <button className={styles.exploreBtn}>Explorer</button>
@@ -110,6 +114,19 @@ function Accueil() {
                     </Link>
                 </div>
             </>
+    }
+
+    if (newImport) {
+        display =
+            <div className={styles.container}>
+                <div className={styles.title}>Importer depuis Suno</div>
+                <div className={styles.importContainer}>
+                </div>
+                <div className={styles.inputImportContainer}>
+                    <input placeholder="Collez les liens de vos morceaux Suno..." className={styles.inputSunoLink} />
+                    <AutocompleteIntroduction /></div>
+                <button className={styles.createBtn}>Terminer</button>
+            </div>
     }
 
 

@@ -17,7 +17,7 @@ const userSchema = mongoose.Schema({
     picture: { type: String, required: false, default: null },
     theme: { type: String, required: false },
     language: { type: String, required: false },
- 
+
 });
 
 const User = mongoose.model('users', userSchema);
