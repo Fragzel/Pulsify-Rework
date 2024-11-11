@@ -7,6 +7,7 @@ const User = require('../models/users')
 const Keyword = require("../models/keywords")
 const cloudinary = require('../cloudinary');
 const Genre = require('../models/genres')
+const puppeteer = require('puppeteer');
 
 // Middelware pour décoder les données de l'audio venant du frontend
 const multer = require('multer');
@@ -133,6 +134,60 @@ router.post("/:projectId/upload-audio", upload.single('audio'), async (req, res)
         // Fermeture du flux de données 
     ).end(req.file.buffer);
 
+});
+
+router.get('/get-audio-url', async (req, res) => {
+    try {
+        const browser = await puppeteer.launch({
+            headless: false, // Changez en `true` pour le déploiement
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+        const page = await browser.newPage();
+
+        // Modifier l'User-Agent
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36');
+
+        // Activer les logs de la page pour détecter les erreurs
+        page.on('console', (msg) => console.log('PAGE LOG:', msg.text()));
+
+        await page.goto('https://suno.com/song/32fec252-f91c-48d2-9a81-411d9e1e25c8', { waitUntil: 'networkidle2' });
+
+        // Attendre un instant pour simuler le comportement naturel
+        await page.waitForTimeout(2000);
+
+        // Scroller vers le bouton
+        await page.evaluate(() => {
+            const playButton = document.querySelector('button[aria-label="Playbar: Play button"]');
+            if (playButton) playButton.scrollIntoView();
+        });
+
+        // Attendre que le bouton Play soit chargé, avec un timeout plus long
+        await page.waitForSelector('button[aria-label="Playbar: Play button"]', { visible: true, timeout: 30000 });
+
+        // Cliquer sur le bouton Play
+        await page.click('button[aria-label="Playbar: Play button"]');
+
+        // Attendre une seconde pour que l'audio se charge et commence à jouer
+        await page.waitForTimeout(1000);
+
+        // Récupérer l'URL de l'audio, avec une vérification de l'existence de l'élément
+        const audioSrc = await page.evaluate(() => {
+            const audioElement = document.querySelector('#active-audio-play');
+            return audioElement ? audioElement.src : null;
+        });
+
+        await browser.close();
+
+        // Envoyer l'URL audio au frontend
+        if (audioSrc) {
+            res.json({ audioUrl: audioSrc });
+        } else {
+            res.status(404).json({ error: 'Audio non trouvé' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+    }
 });
 
 

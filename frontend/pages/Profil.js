@@ -8,6 +8,8 @@ import PromptCard from '../components/PromptCard'
 import { useRouter } from 'next/router';
 import { setLikedList } from '../reducers/user';
 
+import AudioPlayer from '../components/AudioPlayer';
+
 function Profil() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -182,6 +184,11 @@ function Profil() {
       <div className={styles.footer}>
         <div className={styles.btn} onClick={() => router.push('/Accueil')}>
           Retour
+        </div>
+
+        <div className={styles.btn}>
+          <h1>Lecteur Audio</h1>
+          <AudioPlayer />
         </div>
       </div>
     </div >
