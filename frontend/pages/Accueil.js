@@ -36,7 +36,7 @@ function Accueil() {
     const fetchProjects = async () => {
         // Fetch des projets 
         const { email, token } = user;
-        const fetchProject = await fetch(`${siteUrl}/search/myGenre`, {
+        const fetchProject = await fetch(`${siteUrl}/search/myGenres`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ search, email, token }),
@@ -124,7 +124,7 @@ function Accueil() {
                 </div>
                 <div className={styles.inputImportContainer}>
                     <input placeholder="Collez les liens de vos morceaux Suno..." className={styles.inputSunoLink} />
-                    <AutocompleteIntroduction /></div>
+                    <AutocompleteIntroduction genres={listProjects} /></div>
                 <button className={styles.createBtn}>Terminer</button>
             </div>
     }
