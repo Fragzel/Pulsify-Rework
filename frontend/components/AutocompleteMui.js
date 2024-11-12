@@ -7,7 +7,6 @@ import { styled } from '@mui/system';
 import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ClearIcon from '@mui/icons-material/Clear';
-import TextField from '@mui/material/TextField';
 
 const Autocomplete = React.forwardRef(function Autocomplete(props, ref) {
   const {
@@ -105,14 +104,10 @@ Autocomplete.propTypes = {
 };
 
 export default function AutocompleteIntroduction({ genres }) {
-  const [value, setValue] = useState(null);
   const genresList = genres.map(genre => ({ label: genre.genre }));
 
   return <Autocomplete
     options={genresList}
-    value={value}
-    onChange={(event, newValue) => setValue(newValue)}
-    renderInput={(params) => <TextField {...params} label="Genres" />}
   />
 }
 
