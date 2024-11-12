@@ -5,13 +5,18 @@ import { useRouter } from "next/router";
 import Header from "../components/Header";
 import ModelCard from "../components/ModelCard";
 import { useSelector } from "react-redux";
-import AutocompleteIntroduction from "../components/autocompleteMui";
+import AutocompleteIntroduction from "../components/AutocompleteMui";
+import Addbutton from "../components/AddButton";
+import SunoProjectCard from "../components/SunoProjectCard";
 
-function Accueil() {
+
+function Accueil(props) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
     const [newProject, setNewProject] = useState(false);
     const [newImport, setNewImport] = useState(false)
+    const [sunoLink, setSunoLink] = useState('');
+    const [sunoProject, setSunoProject] = useState(null);
     const [newExistingProject, setNewExistingProject] = useState(false);
     const [search, setSearch] = useState('');
     const [searchCommunity, setSearchCommunity] = useState('');
@@ -81,7 +86,14 @@ function Accueil() {
         fetchCommunityProjects();
     }
 
+    const fetchFromSuno = async () => {
+        const formattedLink = sunoLink.split('https://suno.com/song/')[1];
 
+        const fetchSuno = await fetch(`${siteUrl}/projects/get-suno-clip/${formattedLink}`)
+        const response = await fetchSuno.json();
+        setSunoProject(response.project)
+
+    }
 
     let display =
         <div className={styles.container}>
@@ -116,15 +128,24 @@ function Accueil() {
             </>
     }
 
+    useEffect(() => {
+        sunoLink && fetchFromSuno()
+    }, [sunoLink])
+
     if (newImport) {
         display =
             <div className={styles.container}>
                 <div className={styles.title}>Importer depuis Suno</div>
+
                 <div className={styles.importContainer}>
+                    {sunoProject ? <SunoProjectCard project={sunoProject} /> : <div className={styles.cardContainer}>Renseignez le lien Suno pour faire apparaître votre projet</div>}
+
                 </div>
                 <div className={styles.inputImportContainer}>
-                    <input placeholder="Collez les liens de vos morceaux Suno..." className={styles.inputSunoLink} />
-                    <AutocompleteIntroduction genres={listProjects} /></div>
+                    <input placeholder="Collez les liens de vos morceaux Suno..." className={styles.inputSunoLink} onChange={(e) => setSunoLink(e.target.value)} />
+                    <AutocompleteIntroduction genresList={listProjects} />
+                    <Addbutton size="small" />
+                </div>
                 <button className={styles.createBtn}>Terminer</button>
             </div>
     }

@@ -226,20 +226,26 @@ router.get("/get-suno-clip/:sunoLink", async (req, res) => {
     const projectData = await fetchApi.json()
 
     if (projectData) {
-        const newProject = new Project({
-            genre: projectData,
-            prompt: formattedPrompt,
-            audio: "",
-            rating: req.body.rating,
-            isPublic: req.body.isPublic,
-            username: req.body.username,
-            userId: foundUser._id,
-            name: req.body.name
-
-
-
-        })
+        const project = {
+            prompt: projectData.metadata.tags,
+            lyrics: projectData.metadata.prompt,
+            duration: projectData.metadata.duration,
+            hasVocals: projectData.metadata.has_vocal,
+            audio: projectData.audio_url,
+            name: projectData.title,
+            songImage: projectData.image_large_url,
+            avatarImage: projectData.avatar_image_url,
+            modelVersion: projectData.major_model_version,
+            author: projectData.display_name,
+            playCount: projectData.play_count,
+            upVoteCount: projectData.upvote_count,
+            isPublic: projectData.is_public,
+        }
+        res.json({ result: true, project });
+    } else {
+        res.status(404).json({ result: false, error: 'Projet non trouvé' });
     }
+
 })
 
 router.delete("/prompt", async (req, res) => {
