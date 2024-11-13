@@ -9,6 +9,7 @@
   box-sizing: border-box;
   padding: 0 20px;
   background-color: #0B0A1A;
+  /* z-index: 100; */
 }
 
 .title1 {

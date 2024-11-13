@@ -225,7 +225,7 @@ router.get("/get-suno-clip/:sunoLink", async (req, res) => {
     const fetchApi = await fetch(`https://suno-api-five-lemon.vercel.app/api/clip?id=${sunoLink}`)
     const projectData = await fetchApi.json()
 
-    if (projectData) {
+    if (projectData.metadata) {
         const project = {
             prompt: projectData.metadata.tags,
             lyrics: projectData.metadata.prompt,

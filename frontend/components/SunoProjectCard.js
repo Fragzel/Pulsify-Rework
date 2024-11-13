@@ -50,21 +50,23 @@ export default function RecipeReviewCard(props) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
       <Card sx={{ maxWidth: 345, height: 500 }}>
+        <CardMedia
+          component="img"
+          height="194"
+          image={props.project.songImage}
+          alt="Suno song image"
+          sx={{ position: 'absolute', top: '10vh', left: 0, width: '100%', height: '70vh', objectPosition: 'center 40%', zIndex: 1 }}
+        />
         <CardHeader
+          sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', position: 'relative', zIndex: 2 }}
           avatar={
-            <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe" src={props.project.avatarImage}>
+            <Avatar sx={{ bgcolor: red[500] }} aria-label="avatar" src={props.project.avatarImage}>
             </Avatar>
           }
           title={<Typography variant="h6">{titleText}</Typography>}
           subheader={<Typography variant="subtitle2">{subheaderText}</Typography>}
         />
-        <CardMedia
-          component="img"
-          height="194"
-          image={props.project.songImage}
-          alt="Paella dish"
-        />
-        <CardContent>
+        <CardContent sx={{ backgroundColor: 'rgba(240, 230, 240, 0.7)', position: 'relative', zIndex: 2 }}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {prompt}
             <p style={{ "paddingTop": "5px" }}>Play count : {props.project.playCount} </p>
@@ -73,7 +75,7 @@ export default function RecipeReviewCard(props) {
         </CardContent>
 
       </Card>
-      <div>
+      <div style={{ zIndex: 2, marginTop: '-20px' }}>
         {props.project.lyrics ? <div style={{ "marginLeft": "30px" }}>Lyrics</div> : <></>}
         <CardContent
           sx={{
@@ -83,10 +85,13 @@ export default function RecipeReviewCard(props) {
             overflowY: 'auto', // Enable scrolling when content overflow
             padding: 2,
             boxSizing: 'border-box',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            zIndex: 2,
+            borderRadius: '4px'
           }}
         >
           {typedLines && typedLines.map((line, index) => (
-            <Typography variant="body2" key={index} sx={{ marginBottom: 1 }}>
+            <Typography variant="body2" key={index} sx={{ marginBottom: 1, color: 'rgba(0, 0, 0, 0.6)' }}>
               {line}
             </Typography>
           ))}

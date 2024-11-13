@@ -37,6 +37,7 @@ const Autocomplete = React.forwardRef(function Autocomplete(props, ref) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
   return (
     <div ref={containerRef} {...other}>
       <StyledAutocompleteRoot
