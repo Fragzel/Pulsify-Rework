@@ -25,7 +25,7 @@ function App({ Component, pageProps }) {
     <Provider store={store}>
       <PersistGate persistor={persistor}>
         <Head>
-          <title>Pusify</title>
+          <title>Pulsify</title>
         </Head>
         <Component {...pageProps} />
       </PersistGate>
