@@ -271,7 +271,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 150%;
+  font-size: 100%;
 }
 
 .inputSunoLink::placeholder {
@@ -294,4 +294,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.cardContainer {
+  border: #ffffff 1.5px solid;
+  width: 40%;
+  height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
 }
