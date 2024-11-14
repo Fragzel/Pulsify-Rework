@@ -135,18 +135,17 @@ function Accueil(props) {
     if (newImport) {
         display =
             <div className={styles.container}>
-                <div className={styles.title}>Importer depuis Suno</div>
+                {!sunoProject && <div className={styles.title}>Importer depuis Suno</div>}
 
                 <div className={styles.importContainer}>
                     {sunoProject ? <SunoProjectCard project={sunoProject} /> : <div className={styles.cardContainer}>Renseignez le lien Suno pour faire apparaître votre projet</div>}
-
                 </div>
                 <div className={styles.inputImportContainer}>
                     <input placeholder="Collez les liens de vos morceaux Suno..." className={styles.inputSunoLink} onChange={(e) => setSunoLink(e.target.value)} />
                     <AutocompleteIntroduction genresList={listProjects} />
                     <Addbutton size="small" />
                 </div>
-                <button className={styles.createBtn}>Terminer</button>
+                <button className={styles.newImportFinishButton} onClick={() => window.location.href = '/Accueil'}>Terminer</button>
             </div>
     }
 
