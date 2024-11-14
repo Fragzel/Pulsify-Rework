@@ -30,7 +30,7 @@ const useTypingEffect = (fullText, speed = 25) => {
   return displayedText;
 };
 
-export default function RecipeReviewCard() {
+export default function SunoProjectCard() {
   // Applying typing effect to all texts
   const titleText = useTypingEffect("Shrimp and Chorizo Paella", 50);
   const subheaderText = useTypingEffect("September 14, 2016", 50);
@@ -63,7 +63,7 @@ export default function RecipeReviewCard() {
               R
             </Avatar>
           }
-     
+
           title={<Typography variant="h6">{titleText}</Typography>}
           subheader={<Typography variant="subtitle2">{subheaderText}</Typography>}
         />
@@ -79,11 +79,11 @@ export default function RecipeReviewCard() {
           </Typography>
         </CardContent>
         <CardActions disableSpacing>
-     
-  
+
+
         </CardActions>
       </Card>
-      
+
       {/* Collapse content displayed by default on the right */}
       <CardContent sx={{ maxWidth: 400, marginLeft: 2 }}>
         <Typography variant="body2" sx={{ marginBottom: 2 }}>
