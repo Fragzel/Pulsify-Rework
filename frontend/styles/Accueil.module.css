@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  height: 90vh;
+  height: 100vh;
   width: 100vw;
   font-family: 'Arial';
   background-color: #0B0A1A;
@@ -85,6 +85,29 @@
   margin: 10px;
 }
 
+.newImportFinishButton {
+  color: white;
+  width: 20vw;
+  height: 5%;
+  max-width: 150px;
+  min-height: 20px;
+  max-height: 8vh;
+  background: #535992;
+  border: 1px solid #EE00F2;
+  box-shadow: inset 0px -4px 32px -4px rgba(12, 12, 13, 0.1);
+  border-radius: 8px;
+  font-size: 2vh;
+  cursor: pointer;
+  /* margin: 10px; */
+  transition-duration: 500ms;
+  z-index: 0;
+}
+
+.newImportFinishButton:hover {
+  background-color: #B300F2;
+
+}
+
 .createBtn {
   box-sizing: border-box;
   width: 477px;
@@ -118,7 +141,7 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: 90vh;
+  height: 100vh;
   width: 100vw;
   font-family: 'Arial';
   background-color: #0B0A1A;
@@ -257,21 +280,21 @@
 }
 
 .inputSunoLink {
-  width: 25vw;
+  width: 100%;
   height: 5vh;
   max-height: 5vh;
-  max-width: 25vw;
+  max-width: 55vw;
   color: rgb(255, 255, 255);
-  background: #737286;
+  background: #797391;
   border: 1px solid #000000;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
-  border-radius: 10px;
+  border-radius: 7px;
   margin: 10px;
   padding: 1vw;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 100%;
+  font-size: 90%;
 }
 
 .inputSunoLink::placeholder {
@@ -283,23 +306,26 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: 80%;
+  height: 80vh;
   width: 80vw;
   font-family: 'Arial';
   background-color: #0B0A1A;
   color: white;
+  z-index: 0;
 }
 
 .inputImportContainer {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1;
+  width: 60%;
 }
 
 .cardContainer {
-  border: #ffffff 1.5px solid;
+  border: #ffffff 1px dotted;
   width: 40%;
-  height: 90%;
+  height: 15%;
   display: flex;
   justify-content: center;
   align-items: center;
