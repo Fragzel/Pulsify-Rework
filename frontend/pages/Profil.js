@@ -185,11 +185,6 @@ function Profil() {
         <div className={styles.btn} onClick={() => router.push('/Accueil')}>
           Retour
         </div>
-
-        <div className={styles.btn}>
-          <h1>Lecteur Audio</h1>
-          <AudioPlayer />
-        </div>
       </div>
     </div >
   );
