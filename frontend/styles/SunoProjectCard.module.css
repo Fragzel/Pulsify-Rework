@@ -1,0 +1,23 @@
+.imageHidden {
+    opacity: 0;
+    transition: opacity 1.3s ease-in-out;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.imageVisible {
+    opacity: 1;
+    transition: opacity 3s ease-in-out;
+    user-select: none;
+    -webkit-user-drag: element;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #535992;
+    border-radius: 8px 8px 0 0;
+    transition-duration: 1000ms;
+}
