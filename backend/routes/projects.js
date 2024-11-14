@@ -227,7 +227,9 @@ router.get("/get-suno-clip/:sunoLink", async (req, res) => {
 
     if (projectData.metadata) {
         const project = {
+            id: projectData.id,
             prompt: projectData.metadata.tags,
+            negative: projectData.metadata.negative_tags,
             lyrics: projectData.metadata.prompt,
             duration: projectData.metadata.duration,
             hasVocals: projectData.metadata.has_vocal,
