@@ -8,8 +8,9 @@ import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
 import Box from '@mui/material/Box';
-
-
+import Chip from '@mui/material/Chip';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 // Custom hook for typing effect
 const useTypingEffect = (fullText, speed = 10) => {
   const [displayedText, setDisplayedText] = React.useState('');
@@ -82,17 +83,30 @@ export default function RecipeReviewCard(props) {
           avatar={
             <Avatar sx={{ bgcolor: red[500] }} aria-label="avatar" src={props.project.avatarImage}>
             </Avatar>
+
           }
-          title={<Typography variant="h6">{titleText}</Typography>}
-          subheader={<Typography variant="subtitle2">{subheaderText}</Typography>}
+          title={<Typography className={styles.headerCard} variant="h6">{titleText}
+            <Chip sx={{ height: '25px' }} label={props.project.playCount >= 1000
+              ? <div className={styles.fragment}> <PlayArrowIcon fontSize='small' /> {Math.floor(props.project.playCount / 1000) + "K"} </div> :
+              <div className={styles.fragment}><PlayArrowIcon fontSize='small' /> {props.project.playCount}</div>}>
+            </Chip>
+          </Typography>}
+
+          subheader={<Typography className={styles.headerCard} variant="subtitle2">{subheaderText}
+            <Chip sx={{ height: '25px', marginLeft: "0px" }} label={props.project.upVoteCount >= 1000 ?
+              <div className={styles.fragment}> <ThumbUpIcon fontSize='5px' sx={{ marginRight: "5px" }} /> {Math.floor(props.project.upVoteCount / 1000) + "K"} </div> :
+              <div className={styles.fragment}> <ThumbUpIcon fontSize='5px' sx={{ marginRight: "5px" }} /> {props.project.upVoteCount}</div>}>
+            </Chip>
+          </Typography>}
+
         />
         <CardContent sx={{ backgroundColor: 'rgba(240, 230, 240, 0.7)', position: 'relative', zIndex: 2 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }} style={{ "display": "flex", "flexDirection": "column" }}>
             Style of Music : {prompt}
-            {negativePrompt && <p style={{ "paddingTop": "5px" }}>Exclude Styles : {negativePrompt}</p>}
-            <p style={{ "paddingTop": "5px" }}>Plays : {props.project.playCount} <br />
-              Likes : {props.project.upVoteCount} </p>
-            {props.project.audio && <audio type='file' controls src={props.project.audio} style={{ justifyContent: 'center', width: '100%', height: '65px' }}></audio>}
+            {negativePrompt && <p style={{ "paddingTop": "5px" }}>Exclude Styles : {negativePrompt}</p >}
+            <Chip label={props.project.modelVersion} size="small" sx={{ width: "auto", maxWidth: "fit-content", marginTop: "15px" }}></Chip>
+            {/* {props.project.audio && <audio type='file' controls src={props.project.audio} style={{ justifyContent: 'center', width: '100%' }}></audio>} */}
+
           </Typography>
         </CardContent>
       </Card>

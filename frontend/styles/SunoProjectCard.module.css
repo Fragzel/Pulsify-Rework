@@ -21,3 +21,14 @@
     border-radius: 8px 8px 0 0;
     transition-duration: 1000ms;
 }
+
+.fragment {
+    display: flex;
+    align-items: center;
+    height: 25px;
+}
+
+.headerCard {
+    display: flex;
+    justify-content: space-between;
+}
