@@ -52,7 +52,7 @@ function Project() {
 
 
     // Fetch des suggestions
-    let suggestions = [];
+    const suggestions = [];
     const fetchSuggestions = async () => {
         const { token, email } = user;
         const fetchSuggestions = await fetch(`${siteUrl}/keywords/suggestions`,

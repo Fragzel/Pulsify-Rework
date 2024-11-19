@@ -39,7 +39,7 @@ function Header() {
 
     return (
         <header className={styles.handleConnectionContainer}>
-            <Link className={styles.title1} href='/Accueil'>
+            <Link href='/Accueil'>
                 <h1 className={styles.title1}>PULSIFY</h1>
             </Link>
             {topMenu}
