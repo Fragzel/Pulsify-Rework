@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import AutocompleteIntroduction from "../components/AutocompleteMui";
 import Addbutton from "../components/AddButton";
 import SunoProjectCard from "../components/SunoProjectCard";
+import InputTextField from "../components/InputTextField";
 
 
 function Accueil(props) {
@@ -141,7 +142,7 @@ function Accueil(props) {
                     {sunoProject ? <SunoProjectCard project={sunoProject} /> : <div className={styles.cardContainer}>Renseignez le lien Suno pour faire apparaître votre projet</div>}
                 </div>
                 <div className={styles.inputImportContainer}>
-                    <input placeholder="Collez les liens de vos morceaux Suno..." className={styles.inputSunoLink} onChange={(e) => setSunoLink(e.target.value)} />
+                    <InputTextField placeholder="Collez les liens de vos morceaux Suno..." className={styles.inputSunoLink} onChange={(e) => setSunoLink(e.target.value)} text={sunoLink} />
                     <AutocompleteIntroduction genresList={listProjects} />
                     <Addbutton size="small" />
                 </div>
