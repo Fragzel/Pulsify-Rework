@@ -1,3 +1,5 @@
+'use client';
+
 import styles from "../styles/Accueil.module.css"
 import { useEffect, useState } from 'react';
 import Link from "next/link";
@@ -130,8 +132,16 @@ function Accueil(props) {
     }
 
     useEffect(() => {
-        sunoLink && fetchFromSuno()
+        try {
+            sunoLink && fetchFromSuno()
+            console.log('edited');
+        } catch (err) {
+            console.error(err);
+        }
     }, [sunoLink])
+
+    console.log('sunoProject', sunoProject);
+    console.log('sunoLink', sunoLink);
 
     if (newImport) {
         display =
