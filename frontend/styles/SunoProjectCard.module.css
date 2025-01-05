@@ -6,6 +6,8 @@
 }
 
 .imageVisible {
+    position: absolute;
+    z-index: 0;
     opacity: 1;
     transition: opacity 3s ease-in-out;
     user-select: none;

@@ -10,8 +10,7 @@ import { useSelector } from "react-redux";
 import AutocompleteIntroduction from "../components/AutocompleteMui";
 import Addbutton from "../components/AddButton";
 import SunoProjectCard from "../components/SunoProjectCard";
-import InputTextField from "../components/InputTextField";
-
+import TimeLineMui from "../components/TimelineMui";
 
 function Accueil(props) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
@@ -19,13 +18,17 @@ function Accueil(props) {
     const [newProject, setNewProject] = useState(false);
     const [newImport, setNewImport] = useState(false)
     const [sunoLink, setSunoLink] = useState('');
+    const [sunoId, setSunoId] = useState(null);
     const [sunoProject, setSunoProject] = useState(null);
+    const [currentCardId, setCurrentCardId] = useState(null);
     const [newExistingProject, setNewExistingProject] = useState(false);
     const [search, setSearch] = useState('');
     const [searchCommunity, setSearchCommunity] = useState('');
     const [selectedTab, setSelectedTab] = useState(1);
     const [listProjects, setListProject] = useState([]);
     const [listCommunityProject, setListCommunityProject] = useState([]);
+    const [timelineEvents, setTimelineEvents] = useState([])
+
 
     const router = useRouter();
     const user = useSelector((state => state.user.value));
@@ -95,8 +98,33 @@ function Accueil(props) {
         const fetchSuno = await fetch(`${siteUrl}/projects/get-suno-clip/${formattedLink}`)
         const response = await fetchSuno.json();
         setSunoProject(response.project)
-
     }
+    const getCurrentCardId = (id) => {
+    }
+
+    // const getTimelineEvents = async () => {
+    //     const fetchedEvents = await fetch(`${siteUrl}/projects/get-project-timeline/`, {
+    //         method: 'POST',
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify({ id: sunoId })
+    //     })
+    //     const fetchedEventsJson = await fetchedEvents.json()
+    //     console.log("fetchedEventsJson", fetchedEventsJson)
+    //     setTimelineEvents(fetchedEvents)
+
+    // }
+    useEffect(() => {
+        if (sunoLink) {
+            fetchFromSuno()
+        }
+    }, [sunoLink]);
+
+    // useEffect(() => {
+    //     getTimelineEvents();
+    // }, [sunoId]);
+
 
     let display =
         <div className={styles.container}>
@@ -131,28 +159,18 @@ function Accueil(props) {
             </>
     }
 
-    useEffect(() => {
-        try {
-            sunoLink && fetchFromSuno()
-            console.log('edited');
-        } catch (err) {
-            console.error(err);
-        }
-    }, [sunoLink])
 
-    console.log('sunoProject', sunoProject);
-    console.log('sunoLink', sunoLink);
 
     if (newImport) {
         display =
             <div className={styles.container}>
                 {!sunoProject && <div className={styles.title}>Importer depuis Suno</div>}
-
                 <div className={styles.importContainer}>
+                    {/* {sunoId && <TimeLineMui sunoId={sunoId} timelineEvents={timelineEvents} />} */}
                     {sunoProject ? <SunoProjectCard project={sunoProject} /> : <div className={styles.cardContainer}>Renseignez le lien Suno pour faire apparaître votre projet</div>}
                 </div>
                 <div className={styles.inputImportContainer}>
-                    <InputTextField placeholder="Collez les liens de vos morceaux Suno..." className={styles.inputSunoLink} onChange={(e) => setSunoLink(e.target.value)} text={sunoLink} />
+                    <input placeholder="Collez les liens de vos morceaux Suno..." className={styles.inputSunoLink} onChange={(e) => { setSunoLink(e.target.value) }} value={sunoLink} />
                     <AutocompleteIntroduction genresList={listProjects} />
                     <Addbutton size="small" />
                 </div>

@@ -218,6 +218,95 @@ router.post("/:projectId/upload-audio", upload.single('audio'), async (req, res)
 
 // Suppression d'un prompt
 
+function formatDuration(durationInSeconds) {
+    const minutes = Math.floor(durationInSeconds / 60); // Obtenir le nombre entier de minutes
+    const seconds = durationInSeconds % 60; // Reste des secondes après les minutes
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`; // Format avec deux chiffres pour les secondes
+}
+const timelineHistory = [];
+
+router.post("/get-project-timeline", async (req, res) => {
+    const { id } = req.body;
+    const fetchApi = await fetch(`https://suno-api-five-lemon.vercel.app/api/clip?id=${id}`)
+    let projectData = await fetchApi.json()
+    let origin_met = false
+
+    if (projectData.error) {
+        return res.status(404).json({ result: false, error: projectData.error });
+    }
+
+    let i = 0
+    do {
+
+        console.log("tour de boucle", i++)
+        if (projectData.metadata?.type === "gen") {
+
+            if (!projectData.metadata?.task) {
+                console.log("pas de task")
+                // generation initiale
+                timelineHistory.push({
+                    id: projectData.id,
+                    type: "gen",
+                    task: null,
+                    duration: formatDuration(projectData.metadata.duration),
+                    image: projectData.image_url,
+                })
+                origin_met = true
+                console.log("origin_met mis à jour :", origin_met);
+
+            }
+            if (projectData.metadata?.task === "infill") {
+                console.log("infill")
+                // replace
+                timelineHistory.push({
+                    id: projectData.id,
+                    type: "gen",
+                    task: "infill",
+                    originId: projectData.metadata.history[0].id,
+                    duration: formatDuration(projectData.metadata.duration),
+                    image: projectData.image_url,
+                })
+                const currentProject = await fetch(`https://suno-api-five-lemon.vercel.app/api/clip?id=${projectData.metadata.history[0].id}`)
+                projectData = await currentProject.json()
+                console.log(projectData)
+            }
+            if (projectData.metadata?.task === "cover") {
+                console.log("cover")
+
+                // cover
+                timelineHistory.push({
+                    id: projectData.metadata.cover_clip_id,
+                    type: "gen",
+                    task: "cover",
+                    originId: projectData.metadata.cover_clip_id,
+                    duration: formatDuration(projectData.metadata.duration),
+                    image: projectData.image_url,
+                })
+                const currentProject = await fetch(`https://suno-api-five-lemon.vercel.app/api/clip?id=${projectData.metadata.cover_clip_id}`)
+                projectData = await currentProject.json()
+
+            } if (projectData.metadata?.task === "extend") {
+                console.log("extend")
+
+                // extend
+                timelineHistory.push({
+                    id: projectData.metadata.history[projectData.metadata.history.length - 1].id,
+                    type: "gen",
+                    task: "extend",
+                    originId: projectData.metadata.history[projectData.metadata.history.length - 1].id,
+                    duration: formatDuration(projectData.metadata.duration),
+                    image: projectData.image_url,
+                })
+                const currentProject = await fetch(`https://suno-api-five-lemon.vercel.app/api/clip?id=${projectData.metadata.history[projectData.metadata.history.length - 1].id}`)
+                projectData = await currentProject.json()
+            }
+        }
+
+    } while (!origin_met)
+    console.log("je sors de la boucle")
+
+    res.json({ result: true, timeline: timelineHistory });
+})
 router.get("/get-suno-clip/:sunoLink", async (req, res) => {
 
 
@@ -242,6 +331,8 @@ router.get("/get-suno-clip/:sunoLink", async (req, res) => {
             playCount: projectData.play_count,
             upVoteCount: projectData.upvote_count,
             isPublic: projectData.is_public,
+
+
         }
         res.json({ result: true, project });
     } else {
@@ -249,6 +340,66 @@ router.get("/get-suno-clip/:sunoLink", async (req, res) => {
     }
 
 })
+
+router.get("/get-suno-clip-extend/:id", async (req, res) => {
+    const { id } = req.params;
+    const fetchApi = await fetch(`https://suno-api-five-lemon.vercel.app/api/clip?id=${id}`)
+    const projectData = await fetchApi.json()
+
+    if (projectData.metadata) {
+        const project = {
+            id: projectData.id,
+            originId: projectData.metadata.history[projectData.metadata.history.length - 1].id,
+            continue_at: projectData.metadata.history[projectData.metadata.history.length - 1].continue_at,
+            image: projectData.image_large_url,
+            duration: formatDuration(projectData.metadata.duration),
+        }
+        res.json({ result: true, project });
+    } else {
+        res.status(404).json({ result: false, error: 'Projet non trouvé' });
+    }
+
+})
+
+
+router.get("/get-suno-clip-cover/:id", async (req, res) => {
+    const { id } = req.params;
+    const fetchApi = await fetch(`https://suno-api-five-lemon.vercel.app/api/clip?id=${id}`)
+    const projectData = await fetchApi.json()
+
+    if (projectData.metadata) {
+        const project = {
+            id: projectData.id,
+            originId: projectData.metadata.cover_clip_id,
+            image: projectData.image_large_url,
+            duration: formatDuration(projectData.metadata.duration),
+        }
+        res.json({ result: true, project });
+    } else {
+        res.status(404).json({ result: false, error: 'Projet non trouvé' });
+    }
+})
+
+router.get("/get-suno-clip-infill/:id", async (req, res) => {
+    const { id } = req.params;
+    const fetchApi = await fetch(`https://suno-api-five-lemon.vercel.app/api/clip?id=${id}`)
+    const projectData = await fetchApi.json()
+
+    if (projectData.metadata) {
+        const project = {
+            id: projectData.id,
+            originId: projectData.metadata.history[0].id,
+            image: projectData.image_large_url,
+            duration: formatDuration(projectData.metadata.duration),
+        }
+        res.json({ result: true, project });
+    } else {
+        res.status(404).json({ result: false, error: 'Projet non trouvé' });
+    }
+}
+)
+
+
 
 router.delete("/prompt", async (req, res) => {
 
